@@ -1,16 +1,19 @@
 // context/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { setUser } from "../redux/authSlice";
 import api from "../utils/axios";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUserState] = useState(null);
   const [token, setToken] = useState(
     () => localStorage.getItem("token") || null
   );
   const [loading, setLoading] = useState(true);
   const apiUrl = import.meta.env.VITE_BACKEND_URL;
+  const dispatch = useDispatch();
   
   useEffect(() => {
     const checkAuth = async () => {
@@ -27,12 +30,15 @@ export const AuthProvider = ({ children }) => {
 
         if (response.data.success) {
           console.log("Auth successful, setting user");
-          setUser(response.data.data);
+          setUserState(response.data.data);
+          dispatch(setUser(response.data.data)); // Sync with Redux
         } else {
           console.log("Auth failed, clearing token");
           // Clear invalid token
           setToken(null);
           localStorage.removeItem("token");
+          setUserState(null);
+          dispatch(setUser(null)); // Clear Redux
         }
       } catch (error) {
         console.error("Auth check failed:", error);
@@ -41,6 +47,8 @@ export const AuthProvider = ({ children }) => {
           console.log("401 error, clearing token");
           setToken(null);
           localStorage.removeItem("token");
+          setUserState(null);
+          dispatch(setUser(null)); // Clear Redux
         }
       } finally {
         console.log("Setting loading to false");
@@ -49,14 +57,15 @@ export const AuthProvider = ({ children }) => {
     };
 
     checkAuth();
-  }, [apiUrl]); // Only depend on apiUrl
+  }, [apiUrl, dispatch]); // Added dispatch to dependencies
 
   const login = async (email, password) => {
     try {
       const response = await api.post(`${apiUrl}/api/v1/login`, { email, password });
 
       if (response.data.success) {
-        setUser(response.data.user);
+        setUserState(response.data.user);
+        dispatch(setUser(response.data.user)); // Sync with Redux
 
         if (response.data.token) {
           setToken(response.data.token);
@@ -79,7 +88,8 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
-      setUser(null);
+      setUserState(null);
+      dispatch(setUser(null)); // Clear Redux
       setToken(null);
       localStorage.removeItem("token");
     }
@@ -93,7 +103,10 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     logout,
-    setUser,
+    setUser: (userData) => {
+      setUserState(userData);
+      dispatch(setUser(userData)); // Sync with Redux
+    },
     setToken,
   };
 
