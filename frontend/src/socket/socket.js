@@ -5,8 +5,7 @@ let socket;
 
 export const initSocket = () => {
   if (!socket) {
-    const token = localStorage.getItem("token");
-    console.log("Initializing socket with token:", token ? "Token exists" : "No token");
+    console.log("Initializing socket with httpOnly cookies");
     
     // Clean the API URL to remove any spaces or formatting issues
     const cleanApiUrl = apiUrl?.trim();
@@ -19,10 +18,7 @@ export const initSocket = () => {
     console.log("Connecting socket to:", cleanApiUrl);
     
     socket = io(cleanApiUrl, {
-      withCredentials: true,
-      auth: {
-        token: token
-      },
+      withCredentials: true, // This will send httpOnly cookies automatically
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: 5,
@@ -51,11 +47,11 @@ export const getSocket = () => {
   return socket;
 };
 
-export const updateSocketAuth = (token) => {
+// No longer needed since we use httpOnly cookies
+export const updateSocketAuth = () => {
   if (socket) {
-    console.log("Updating socket auth token");
-    socket.auth = { token };
-    socket.disconnect().connect();
+    console.log("Socket auth updated (httpOnly cookies handled automatically)");
+    // No need to manually update auth - cookies are sent automatically
   }
 };
 

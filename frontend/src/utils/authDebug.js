@@ -1,3 +1,5 @@
+import { store } from '../redux/store';
+
 // Utility to debug authentication state
 export const debugAuthState = () => {
   console.log("=== AUTH STATE DEBUG ===");
@@ -5,36 +7,35 @@ export const debugAuthState = () => {
   // Check localStorage
   console.log("localStorage keys:", Object.keys(localStorage));
   
-  // Check for tokens in different locations
-  const tokenKeys = ['token', 'authToken', 'accessToken', 'jwt', 'userToken'];
-  tokenKeys.forEach(key => {
-    const value = localStorage.getItem(key);
-    if (value) {
-      console.log(`localStorage['${key}']:`, value.substring(0, 20) + "...");
-    }
+  // Check Redux state
+  const state = store.getState();
+  console.log("Redux persist data keys:", Object.keys(state));
+  console.log("Redux auth data:", {
+    user: state.auth.user ? 'exists' : 'null',
+    loading: state.auth.loading
   });
   
-  // Check Redux persist data
-  const persistData = localStorage.getItem('persist:root');
-  if (persistData) {
-    try {
-      const parsed = JSON.parse(persistData);
-      console.log("Redux persist data keys:", Object.keys(parsed));
-      
-      if (parsed.auth) {
-        const authData = JSON.parse(parsed.auth);
-        console.log("Redux auth data:", {
-          user: authData.user ? "exists" : "null",
-          token: authData.token ? "exists" : "null",
-          loading: authData.loading
-        });
-      }
-    } catch (error) {
-      console.log("Error parsing persist data:", error);
-    }
+  console.log("=== END AUTH STATE DEBUG ===");
+};
+
+export const debugUserState = () => {
+  console.log("=== USER STATE DEBUG ===");
+  
+  const state = store.getState();
+  const user = state.auth.user;
+  
+  if (user) {
+    console.log("User found:", {
+      id: user._id,
+      email: user.email,
+      role: user.role,
+      name: user.fullname || user.companyname
+    });
+  } else {
+    console.log("No user found in Redux");
   }
   
-  console.log("=== END AUTH STATE DEBUG ===");
+  console.log("=== END USER STATE DEBUG ===");
 };
 
 // Function to manually set a token for testing

@@ -2,7 +2,6 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
       user: null,
-      token: localStorage.getItem("token") || null,
       loading: false,
       otherUsers: null,
       selectedUser: null,
@@ -18,26 +17,16 @@ const authSlice = createSlice({
             setUser: (state, action) => {
                   state.user = action.payload;
             },
-            setToken: (state, action) => {
-                  console.log("=== REDUX TOKEN SETTER ===");
-                  console.log("Setting token in Redux:", action.payload ? action.payload.substring(0, 20) + "..." : "null");
-                  state.token = action.payload;
-                  if (action.payload) {
-                        localStorage.setItem("token", action.payload);
-                        console.log("Token also stored in localStorage");
-                  } else {
-                        localStorage.removeItem("token");
-                        console.log("Token removed from localStorage");
-                  }
-                  console.log("=== END REDUX TOKEN SETTER ===");
-            },
             setLoading: (state, action) => {
                   state.loading = action.payload;
+            },
+            logout: (state) => {
+                  state.user = null;
             },
             setOtherUsers: (state, action) => {
                   state.students = action.payload.students;
                   state.recruiters = action.payload.recruiters;
-                },
+            },
             setSelectedUser: (state, action) => {
                   state.selectedUser = action.payload;
             },
@@ -57,6 +46,6 @@ const authSlice = createSlice({
       },
 });
 
-export const { setUser, setToken, setLoading, setOtherUsers, setSelectedUser, setOnlineUsers } = authSlice.actions;
+export const { setUser, setLoading, logout, setOtherUsers, setSelectedUser, setOnlineUsers } = authSlice.actions;
 
 export default authSlice.reducer;
