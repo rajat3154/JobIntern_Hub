@@ -5,12 +5,13 @@ import { Label } from "../ui/label";
 import { RadioGroup } from "../ui/radio-group";
 import { Button } from "../ui/button";
 import { Link, useNavigate } from "react-router-dom";
+import api from "../../utils/axios";
 import { toast } from "sonner";
+import { USER_API_END_POINT } from "@/utils/constant";
 import { useDispatch, useSelector } from "react-redux";
-import { setLoading } from "@/redux/authSlice";
+import { setLoading, setUser } from "@/redux/authSlice";
 import { Loader2, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { useAuth } from "../../context/AuthContext";
 
 const Login = () => {
   const [input, setInput] = useState({
@@ -20,45 +21,47 @@ const Login = () => {
   });
 
   const { loading } = useSelector((store) => store.auth);
-  const { login } = useAuth();
+  useEffect(() => {
+    dispatch(setLoading(false)); // Reset loading on mount
+  }, []);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(setLoading(false)); // Reset loading on mount
-  }, [dispatch]);
-
   const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
-    console.log(e.target.name, e.target.value); // Debug line
   };
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    console.log(input); // Debug line
-    if (!input.email || !input.password || !input.role) {
-      toast.error("All fields are required");
+    const apiUrl = import.meta.env.VITE_BACKEND_URL;
+    console.log(apiUrl);
+    if (!input.role) {
+      toast.error("Please select a role");
       return;
     }
 
     try {
       dispatch(setLoading(true));
 
-      const result = await login(input.email, input.password);
+      const res = await api.post(`${apiUrl}/api/v1/login`, input, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
 
-      if (result.success) {
+      if (res.data.success) {
+        dispatch(setUser(res.data.user));
         if (input.role === "admin") {
           navigate("/admin");
         } else {
           navigate("/");
         }
-        toast.success("Login successful!");
-      } else {
-        toast.error(result.error || "Login failed");
+        toast.success(res.data.message);
       }
     } catch (error) {
       console.log(error);
-      toast.error("Login failed");
+      toast.error(error.response?.data?.message || "Login failed");
     } finally {
       dispatch(setLoading(false));
     }

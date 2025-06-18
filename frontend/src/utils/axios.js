@@ -1,4 +1,5 @@
 import axios from 'axios';
+import store from '../redux/store';
 
 // Create axios instance with base configuration
 const api = axios.create({
@@ -11,11 +12,13 @@ const api = axios.create({
 // Request interceptor to add Authorization header
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    console.log('Axios request - URL:', config.url, 'Token:', token ? 'exists' : 'none');
+    const state = store.getState();
+    const token = state.auth.token;
+    console.log("Axios request interceptor - token:", token ? "exists" : "none");
+    console.log("Request URL:", config.url);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('Added Authorization header');
+      console.log("Added Authorization header");
     }
     return config;
   },
