@@ -16,10 +16,14 @@ const userSockets = new Map();
 export const initSocket = (server) => {
       io = new Server(server, {
             cors: {
-                  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+                  origin: [
+                        "http://localhost:5173",
+                        "https://job-intern-hub.vercel.app",
+                        "https://thejobinternhub.vercel.app"
+                  ],
                   methods: ["GET", "POST"],
                   credentials: true,
-                  allowedHeaders: ["Content-Type"]
+                  allowedHeaders: ["Content-Type", "Authorization"]
             },
             transports: ['websocket', 'polling'],
             path: '/socket.io/',

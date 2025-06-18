@@ -19,8 +19,13 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const { user } = useSelector((state) => state.auth);
   const apiUrl = import.meta.env.VITE_BACKEND_URL;
+  
   useEffect(() => {
     if (!user?._id) return;
+
+    // Get token from localStorage
+    const token = localStorage.getItem("token");
+    console.log("Initializing socket with token:", token ? "Token exists" : "No token");
 
     const newSocket = io(`${apiUrl}`, {
       autoConnect: true,
@@ -33,6 +38,9 @@ export const SocketProvider = ({ children }) => {
       agent: false,
       upgrade: true,
       rejectUnauthorized: false,
+      auth: {
+        token: token
+      }
     });
 
     newSocket.on("connect_error", (err) => {
@@ -41,7 +49,7 @@ export const SocketProvider = ({ children }) => {
 
     newSocket.on("connect", () => {
       console.log("Socket Connected");
-      newSocket.emit("setup", user);
+      newSocket.emit("setup", user._id);
     });
 
     setSocket(newSocket);
@@ -49,7 +57,7 @@ export const SocketProvider = ({ children }) => {
     return () => {
       if (newSocket) newSocket.disconnect();
     };
-  }, [user]);
+  }, [user, apiUrl]);
 
   return (
     <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>

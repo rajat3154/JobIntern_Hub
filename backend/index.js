@@ -22,11 +22,18 @@ const server = createServer(app);
 
 // Initialize Socket.IO immediately after creating the server
 const io = initSocket(server);
+
+// Updated CORS configuration for production
 const corsOptions = {
-    origin: (origin, callback) => {
-        callback(null, true); // Allow all origins dynamically
-    },
+    origin: [
+        "http://localhost:5173",
+        "https://job-intern-hub.vercel.app",
+        "https://thejobinternhub.vercel.app"
+    ],
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    exposedHeaders: ["Set-Cookie"]
 };
 
 app.use(cors(corsOptions));
