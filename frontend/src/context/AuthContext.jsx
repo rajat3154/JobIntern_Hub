@@ -17,14 +17,21 @@ export const AuthProvider = ({ children }) => {
     const interceptor = axios.interceptors.request.use(
       (config) => {
         const token = localStorage.getItem("token");
+        console.log("=== AXIOS INTERCEPTOR DEBUG ===");
+        console.log("Request URL:", config.url);
+        console.log("Request method:", config.method);
+        console.log("Token in localStorage:", token ? "Exists" : "Not found");
+        console.log("Token length:", token ? token.length : 0);
+        
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
           console.log("Axios interceptor - Added Authorization header:", config.headers.Authorization ? "Yes" : "No");
+          console.log("Axios interceptor - Authorization header length:", config.headers.Authorization ? config.headers.Authorization.length : 0);
         } else {
           console.log("Axios interceptor - No token found in localStorage");
         }
-        console.log("Axios interceptor - Request URL:", config.url);
         console.log("Axios interceptor - Request headers:", config.headers);
+        console.log("=== END AXIOS INTERCEPTOR DEBUG ===");
         return config;
       },
       (error) => {

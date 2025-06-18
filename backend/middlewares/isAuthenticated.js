@@ -6,6 +6,11 @@ dotenv.config();
 // Authentication Middleware
 const isAuthenticated = async (req, res, next) => {
       try {
+            console.log("=== AUTHENTICATION DEBUG ===");
+            console.log("Request URL:", req.url);
+            console.log("Request method:", req.method);
+            console.log("All headers:", req.headers);
+            
             // Retrieve token from cookies first, then from Authorization header
             let token = req.cookies.token;
             
@@ -20,6 +25,7 @@ const isAuthenticated = async (req, res, next) => {
             console.log("Auth middleware - Token from cookies:", req.cookies.token ? "Token exists" : "No token");
             console.log("Auth middleware - Token from header:", req.headers.authorization ? "Token exists" : "No token");
             console.log("Auth middleware - Final token:", token ? "Token exists" : "No token");
+            console.log("Auth middleware - Token length:", token ? token.length : 0);
             console.log("Auth middleware - All cookies:", req.cookies);
             
             // Check if token exists
@@ -39,6 +45,8 @@ const isAuthenticated = async (req, res, next) => {
                         success: false,
                   });
             }
+
+            console.log("Auth middleware - SECRET_KEY exists, attempting to verify token");
 
             // Verify the token
             const decoded = jwt.verify(token, process.env.SECRET_KEY);
@@ -61,12 +69,15 @@ const isAuthenticated = async (req, res, next) => {
 
             // Debug log for verification
             console.log("Authenticated User:", req.user);
+            console.log("=== AUTHENTICATION SUCCESS ===");
 
             // Proceed to the next middleware or route handler
             next();
 
       } catch (error) {
+            console.error("=== AUTHENTICATION ERROR ===");
             console.error("Authentication Error:", error.message);
+            console.error("Error stack:", error.stack);
             return res.status(500).json({
                   message: "Internal server error",
                   success: false,

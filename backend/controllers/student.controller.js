@@ -167,8 +167,13 @@ export const login = async (req, res) => {
                   { expiresIn: "1d" }
             );
 
+            console.log("=== LOGIN DEBUG ===");
+            console.log("Login - User ID:", user._id);
+            console.log("Login - User role:", user.role);
             console.log("Login - Token generated:", token ? "Token created" : "No token");
+            console.log("Login - Token length:", token ? token.length : 0);
             console.log("Login - SECRET_KEY exists:", process.env.SECRET_KEY ? "Yes" : "No");
+            console.log("Login - SECRET_KEY length:", process.env.SECRET_KEY ? process.env.SECRET_KEY.length : 0);
 
             const userResponse =
                   role === "student"

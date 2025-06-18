@@ -13,6 +13,7 @@ import followRoute from "./routes/follow.routes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import { createServer } from "http";
 import { initSocket } from "./socket/socket.js";
+import jwt from "jsonwebtoken";
 
 
 dotenv.config();
@@ -87,6 +88,45 @@ app.get('/test', (req, res) => {
         timestamp: new Date().toISOString(),
         headers: req.headers
     });
+});
+
+// Test token endpoint (for debugging)
+app.get('/test-token', (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(400).json({
+                message: 'No Bearer token provided',
+                success: false
+            });
+        }
+
+        const token = authHeader.substring(7);
+        console.log("Test token endpoint - Token received:", token ? "Yes" : "No");
+        console.log("Test token endpoint - Token length:", token.length);
+        console.log("Test token endpoint - SECRET_KEY exists:", process.env.SECRET_KEY ? "Yes" : "No");
+
+        if (!process.env.SECRET_KEY) {
+            return res.status(500).json({
+                message: 'SECRET_KEY not configured',
+                success: false
+            });
+        }
+
+        const decoded = jwt.verify(token, process.env.SECRET_KEY);
+        res.status(200).json({
+            message: 'Token decoded successfully',
+            decoded: decoded,
+            success: true
+        });
+    } catch (error) {
+        console.error("Test token endpoint error:", error.message);
+        res.status(400).json({
+            message: 'Token verification failed',
+            error: error.message,
+            success: false
+        });
+    }
 });
 
 app.use("/api/v1/message", messageRoute);
