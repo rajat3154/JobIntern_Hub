@@ -13,7 +13,7 @@ const ChatHome = () => {
   const [unreadCounts, setUnreadCounts] = useState({});
   const socket = useRef(null);
   const apiUrl = import.meta.env.VITE_BACKEND_URL;
-  const [showSidebar, setShowSidebar] = useState(true); // for mobile
+  const [showSidebar, setShowSidebar] = useState(window.innerWidth >= 768); // hidden by default on mobile
 
   useEffect(() => {
     if (!authUser?._id) return;
@@ -51,6 +51,19 @@ const ChatHome = () => {
     };
   }, [authUser?._id, dispatch]);
 
+  // Responsive: update sidebar visibility on resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setShowSidebar(false);
+      } else {
+        setShowSidebar(true);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Show message container and hide sidebar on mobile when a user is selected
   useEffect(() => {
     if (selectedUser) {
@@ -60,11 +73,16 @@ const ChatHome = () => {
 
   const handleSelectUser = (user) => {
     dispatch(setSelectedUser(user));
+    if (window.innerWidth < 768) setShowSidebar(false);
   };
 
   const handleBackToSidebar = () => {
     dispatch(setSelectedUser(null));
     setShowSidebar(true);
+  };
+
+  const handleSidebarToggle = () => {
+    setShowSidebar((prev) => !prev);
   };
 
   return (
@@ -73,7 +91,7 @@ const ChatHome = () => {
       <div className="flex items-center justify-center bg-black mx-auto h-screen">
         <div className="flex w-full max-w-7xl h-full bg-black mx-auto sm:h-[90vh] sm:rounded-xl sm:overflow-hidden border border-gray-800">
           {/* Sidebar: show on desktop or if showSidebar is true on mobile */}
-          <div className={`h-full ${showSidebar ? 'block' : 'hidden'} sm:block sm:w-1/3 w-full`}>
+          <div className={`h-full ${showSidebar ? 'block' : 'hidden'} md:block md:w-1/3 w-full z-20 bg-black absolute md:static left-0 top-0 transition-all duration-300`}>
             <Sidebar
               selectedUser={selectedUser}
               onSelectUser={handleSelectUser}
@@ -84,13 +102,15 @@ const ChatHome = () => {
             />
           </div>
           {/* MessageContainer: show on desktop or if sidebar is hidden on mobile */}
-          <div className={`h-full ${showSidebar ? 'hidden' : 'block'} sm:block flex-1`}>
+          <div className={`h-full ${showSidebar && window.innerWidth < 768 ? 'hidden' : 'block'} md:block flex-1 relative`}>
             <MessageContainer
               selectedUser={selectedUser}
               unreadCounts={unreadCounts}
               setUnreadCounts={setUnreadCounts}
               socket={socket}
-              onBack={handleBackToSidebar}
+              onBack={window.innerWidth < 768 && showSidebar === false ? handleBackToSidebar : undefined}
+              onSidebarToggle={window.innerWidth < 768 ? handleSidebarToggle : undefined}
+              isMobile={window.innerWidth < 768}
             />
           </div>
         </div>

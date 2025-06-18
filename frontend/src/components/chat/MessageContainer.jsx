@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
-const MessageContainer = ({ selectedUser, unreadCounts, setUnreadCounts, socket, onBack }) => {
+const MessageContainer = ({ selectedUser, unreadCounts, setUnreadCounts, socket, onBack, isMobile, onSidebarToggle }) => {
   const { user: authUser } = useSelector((state) => state.auth);
   const { onlineUsers = [] } = useSelector((state) => state.auth);
   const { messages } = useSelector((state) => state.message);
@@ -202,12 +202,21 @@ const MessageContainer = ({ selectedUser, unreadCounts, setUnreadCounts, socket,
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-black bg-opacity-90 border-t border-r border-b border-gray-800">
+    <div className={`flex-1 flex flex-col bg-black bg-opacity-90 border-t border-r border-b border-gray-800 ${isMobile ? 'w-full h-full fixed top-0 left-0 z-10' : ''}`}>
       {selectedUser ? (
         <>
           {/* Chat header */}
           <div className="p-4 border-b border-gray-800 flex items-center justify-between">
             <div className="flex items-center space-x-3">
+              {/* Sidebar toggle button for mobile */}
+              {isMobile && onSidebarToggle && (
+                <button
+                  className="mr-2 p-2 rounded-full hover:bg-gray-800 text-gray-300"
+                  onClick={onSidebarToggle}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+                </button>
+              )}
               {/* Back button for mobile */}
               {onBack && (
                 <button
