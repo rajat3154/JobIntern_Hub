@@ -119,8 +119,8 @@ export const login = async (req, res) => {
                         .cookie("token", token, {
                               maxAge: 24 * 60 * 60 * 1000,
                               httpOnly: true,
-                              secure: false,
-                              sameSite: "lax",
+                              secure: true,
+                              sameSite: "none",
                         })
                         .json({
                               message: "Welcome Admin",
@@ -198,8 +198,8 @@ export const login = async (req, res) => {
                   .cookie("token", token, {
                         maxAge: 24 * 60 * 60 * 1000,
                         httpOnly: true,
-                        secure: process.env.NODE_ENV === "production",
-                        sameSite: "Lax",
+                        secure: true,
+                        sameSite: "none",
                   })
                   .json({
                         message: welcomeMessage,
@@ -218,8 +218,12 @@ export const login = async (req, res) => {
 };
 export const logout = async (req, res) => {
       try {
-            // Clear the cookie first
-            res.clearCookie("token");
+            // Clear the cookie first with same configuration
+            res.clearCookie("token", {
+                  httpOnly: true,
+                  secure: true,
+                  sameSite: "none",
+            });
 
             // Only try to update lastSeen and emit socket event if we have user info
             if (req.user && req.user._id) {
