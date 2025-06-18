@@ -66,7 +66,7 @@ const RecruiterProfile = () => {
         setPostedJobs(jobsRes.data.jobs || []);
 
         const internshipsRes = await axios.get(
-          `${apiUrl}/api/v1/internship/recruiter/${isOwnProfile ? currentUser._id : id}`,
+          `${apiUrl}/api/v1/internship/recruiter`,
           { withCredentials: true }
         );
         setInternships(internshipsRes.data.internships || []);
@@ -958,5 +958,3 @@ const RecruiterProfile = () => {
     </div>
   );
 };
-
-export default RecruiterProfile;
