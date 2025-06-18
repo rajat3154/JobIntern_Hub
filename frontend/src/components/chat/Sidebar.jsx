@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
-const Sidebar = ({ selectedUser, onSelectUser, unreadCounts, setUnreadCounts, socket }) => {
+const Sidebar = ({ selectedUser, onSelectUser, unreadCounts, setUnreadCounts, socket, onUserSelected }) => {
   const { user: authUser, onlineUsers } = useSelector((state) => state.auth);
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -178,6 +178,7 @@ const Sidebar = ({ selectedUser, onSelectUser, unreadCounts, setUnreadCounts, so
       senderId: user._id,
       receiverId: authUser._id,
     });
+    if (typeof onUserSelected === 'function') onUserSelected();
   };
 
   const logoutHandler = async () => {

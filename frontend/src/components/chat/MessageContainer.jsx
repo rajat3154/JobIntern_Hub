@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
-const MessageContainer = ({ selectedUser, unreadCounts, setUnreadCounts, socket }) => {
+const MessageContainer = ({ selectedUser, unreadCounts, setUnreadCounts, socket, onBack }) => {
   const { user: authUser } = useSelector((state) => state.auth);
   const { onlineUsers = [] } = useSelector((state) => state.auth);
   const { messages } = useSelector((state) => state.message);
@@ -208,6 +208,15 @@ const MessageContainer = ({ selectedUser, unreadCounts, setUnreadCounts, socket 
           {/* Chat header */}
           <div className="p-4 border-b border-gray-800 flex items-center justify-between">
             <div className="flex items-center space-x-3">
+              {/* Back button for mobile */}
+              {onBack && (
+                <button
+                  className="sm:hidden mr-2 p-2 rounded-full hover:bg-gray-800 text-gray-300"
+                  onClick={onBack}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                </button>
+              )}
               <Avatar className="h-10 w-10">
                 <AvatarImage
                   src={selectedUser.profilePhoto}
