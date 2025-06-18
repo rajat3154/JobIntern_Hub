@@ -78,15 +78,30 @@ router.delete("/student/:id", isAuthenticated, isaAdmin, deleteStudent);
 // Get single student profile - moved after specific routes
 router.get("/student/:id", isAuthenticated, async (req, res) => {
     try {
+        console.log("Student profile route - User authenticated:", req.user);
+        console.log("Student profile route - Requested ID:", req.params.id);
+        
         const student = await Student.findById(req.params.id).select("-password");
         if (!student) {
-            throw new ApiError(404, "Student not found");
+            return res.status(404).json({
+                success: false,
+                message: "Student not found"
+            });
         }
-        return res.status(200).json(
-            new ApiResponse(200, student, "Student profile fetched successfully")
-        );
+        
+        console.log("Student profile route - Found student:", student.fullname);
+        
+        return res.status(200).json({
+            success: true,
+            data: student,
+            message: "Student profile fetched successfully"
+        });
     } catch (error) {
-        throw new ApiError(500, error.message || "Error fetching student profile");
+        console.error("Student profile route error:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Error fetching student profile"
+        });
     }
 });
 
@@ -98,15 +113,25 @@ router.delete("/recruiter/:id", isAuthenticated, isaAdmin, deleteRecruiter);
 // Get all students - moved to the end
 router.get("/students", isAuthenticated, async (req, res) => {
     try {
+        console.log("Students route - User authenticated:", req.user);
+        
         const students = await Student.find()
             .select("-password")
             .select("fullname email profile role");
 
-        return res.status(200).json(
-            new ApiResponse(200, students, "Students fetched successfully")
-        );
+        console.log("Students route - Found students:", students.length);
+
+        return res.status(200).json({
+            success: true,
+            data: students,
+            message: "Students fetched successfully"
+        });
     } catch (error) {
-        throw new ApiError(500, error.message || "Error fetching students");
+        console.error("Students route error:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Error fetching students"
+        });
     }
 });
 router.get('/recruiter/profile/:id', isAuthenticated, getRecruiterProfile);

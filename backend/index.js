@@ -80,6 +80,15 @@ app.get('/health', (req, res) => {
     });
 });
 
+// Test endpoint without authentication
+app.get('/test', (req, res) => {
+    res.status(200).json({
+        message: 'Test endpoint working',
+        timestamp: new Date().toISOString(),
+        headers: req.headers
+    });
+});
+
 app.use("/api/v1/message", messageRoute);
 app.use("/api/v1", studentRoute);
 app.use("/api/v1/job", jobRoute);
@@ -92,5 +101,12 @@ app.use("/api/notifications", notificationRoutes);
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
     console.log(`CORS enabled for origins: http://localhost:5173, https://job-intern-hub.vercel.app, https://thejobinternhub.vercel.app`);
+    
+    // Check environment variables
+    console.log("Environment check:");
+    console.log("- SECRET_KEY exists:", process.env.SECRET_KEY ? "Yes" : "No");
+    console.log("- MONGODB_URI exists:", process.env.MONGODB_URI ? "Yes" : "No");
+    console.log("- NODE_ENV:", process.env.NODE_ENV || "Not set");
+    
     connectDB();
 });

@@ -1,22 +1,30 @@
 import { Router } from "express";
 import { Recruiter } from "../models/recruiter.model.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
-import { ApiError } from "../utils/ApiError.js";
 
 const router = Router();
 
 // Get all recruiters
 router.get("/", async (req, res) => {
     try {
+        console.log("Recruiters route - Fetching all recruiters");
+        
         const recruiters = await Recruiter.find()
             .select("-password")
             .select("companyname email profile role");
 
-        return res.status(200).json(
-            new ApiResponse(200, recruiters, "Recruiters fetched successfully")
-        );
+        console.log("Recruiters route - Found recruiters:", recruiters.length);
+
+        return res.status(200).json({
+            success: true,
+            data: recruiters,
+            message: "Recruiters fetched successfully"
+        });
     } catch (error) {
-        throw new ApiError(500, error.message || "Error fetching recruiters");
+        console.error("Recruiters route error:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Error fetching recruiters"
+        });
     }
 });
 
