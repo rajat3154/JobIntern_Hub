@@ -13,106 +13,107 @@ const ChatHome = () => {
   const [unreadCounts, setUnreadCounts] = useState({});
   const socket = useRef(null);
   const apiUrl = import.meta.env.VITE_BACKEND_URL;
-  const [showSidebar, setShowSidebar] = useState(window.innerWidth >= 768); // hidden by default on mobile
+  const [showSidebar, setShowSidebar] = useState(window.innerWidth >= 768);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
     if (!authUser?._id) return;
-
-    // Initialize socket connection
     socket.current = io(`${apiUrl}`, {
       withCredentials: true,
-      auth: {
-        token: localStorage.getItem("token")
-      }
+      auth: { token: localStorage.getItem("token") }
     });
-
-    // Setup user connection
     socket.current.emit("setup", authUser._id);
-
-    // Listen for initial online users list
     socket.current.on("online_users", (onlineUserIds) => {
-      console.log("Received initial online_users:", onlineUserIds);
-      // Set all users as online
       onlineUserIds.forEach(userId => {
         dispatch(setOnlineUsers({ userId, isOnline: true }));
       });
     });
-
-    // Listen for user status updates
     socket.current.on("user:status", ({ userId, isOnline }) => {
-      console.log(`Received user:status for userId: ${userId}, isOnline: ${isOnline}`);
       dispatch(setOnlineUsers({ userId, isOnline }));
     });
-
-    return () => {
-      if (socket.current) {
-        socket.current.disconnect();
-      }
-    };
+    return () => { if (socket.current) { socket.current.disconnect(); } };
   }, [authUser?._id, dispatch]);
 
-  // Responsive: update sidebar visibility on resize
+  // Responsive: update sidebar visibility and mobile state on resize
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) {
         setShowSidebar(false);
+        setIsMobile(true);
       } else {
         setShowSidebar(true);
+        setIsMobile(false);
       }
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Show message container and hide sidebar on mobile when a user is selected
-  useEffect(() => {
-    if (selectedUser) {
-      setShowSidebar(false);
-    }
-  }, [selectedUser]);
-
   const handleSelectUser = (user) => {
     dispatch(setSelectedUser(user));
     if (window.innerWidth < 768) setShowSidebar(false);
-  };
-
-  const handleBackToSidebar = () => {
-    dispatch(setSelectedUser(null));
-    setShowSidebar(true);
   };
 
   const handleSidebarToggle = () => {
     setShowSidebar((prev) => !prev);
   };
 
+  // On mobile: only show sidebar or chat, each full screen
+  // On desktop: show both side by side
   return (
     <>
       <Navbar/>
       <div className="flex items-center justify-center bg-black mx-auto h-screen">
-        <div className="flex w-full max-w-7xl h-full bg-black mx-auto sm:h-[90vh] sm:rounded-xl sm:overflow-hidden border border-gray-800">
-          {/* Sidebar: show on desktop or if showSidebar is true on mobile */}
-          <div className={`h-full ${showSidebar ? 'block' : 'hidden'} md:block md:w-1/3 w-full z-20 bg-black absolute md:static left-0 top-0 transition-all duration-300`}>
-            <Sidebar
-              selectedUser={selectedUser}
-              onSelectUser={handleSelectUser}
-              unreadCounts={unreadCounts}
-              setUnreadCounts={setUnreadCounts}
-              socket={socket}
-              onUserSelected={() => setShowSidebar(false)}
-            />
-          </div>
-          {/* MessageContainer: show on desktop or if sidebar is hidden on mobile */}
-          <div className={`h-full ${showSidebar && window.innerWidth < 768 ? 'hidden' : 'block'} md:block flex-1 relative`}>
-            <MessageContainer
-              selectedUser={selectedUser}
-              unreadCounts={unreadCounts}
-              setUnreadCounts={setUnreadCounts}
-              socket={socket}
-              onBack={window.innerWidth < 768 && showSidebar === false ? handleBackToSidebar : undefined}
-              onSidebarToggle={window.innerWidth < 768 ? handleSidebarToggle : undefined}
-              isMobile={window.innerWidth < 768}
-            />
-          </div>
+        <div className="flex w-full max-w-7xl h-full bg-black mx-auto sm:h-[90vh] sm:rounded-xl sm:overflow-hidden border border-gray-800 relative">
+          {/* Mobile: Sidebar full screen when toggled */}
+          {isMobile && showSidebar && (
+            <div className="fixed inset-0 z-30 w-full h-full bg-black">
+              <Sidebar
+                selectedUser={selectedUser}
+                onSelectUser={handleSelectUser}
+                unreadCounts={unreadCounts}
+                setUnreadCounts={setUnreadCounts}
+                socket={socket}
+                onUserSelected={() => setShowSidebar(false)}
+              />
+            </div>
+          )}
+          {/* Mobile: Chat full screen when sidebar is hidden and a user is selected */}
+          {isMobile && !showSidebar && selectedUser && (
+            <div className="fixed inset-0 z-30 w-full h-full bg-black">
+              <MessageContainer
+                selectedUser={selectedUser}
+                unreadCounts={unreadCounts}
+                setUnreadCounts={setUnreadCounts}
+                socket={socket}
+                onSidebarToggle={handleSidebarToggle}
+                isMobile={true}
+              />
+            </div>
+          )}
+          {/* Desktop: Sidebar and chat side by side */}
+          {!isMobile && (
+            <>
+              <div className="h-full w-1/3">
+                <Sidebar
+                  selectedUser={selectedUser}
+                  onSelectUser={handleSelectUser}
+                  unreadCounts={unreadCounts}
+                  setUnreadCounts={setUnreadCounts}
+                  socket={socket}
+                />
+              </div>
+              <div className="h-full flex-1">
+                <MessageContainer
+                  selectedUser={selectedUser}
+                  unreadCounts={unreadCounts}
+                  setUnreadCounts={setUnreadCounts}
+                  socket={socket}
+                  isMobile={false}
+                />
+              </div>
+            </>
+          )}
         </div>
       </div>
     </>
