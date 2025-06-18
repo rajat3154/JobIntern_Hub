@@ -304,7 +304,7 @@ const RecruiterProfile = () => {
     try {
       setFollowLoading(true);
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/follow/toggle`,
+        `${apiUrl}/api/v1/follow/toggle`,
         {
           targetUserId: profileData._id,
           targetUserType: 'recruiter'
@@ -312,14 +312,14 @@ const RecruiterProfile = () => {
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
+          },
+          withCredentials: true
         }
       );
 
       if (response.data.success) {
         setIsFollowing(!isFollowing);
-        // Refresh followers count
-        fetchFollowers();
+        // The followers will refresh via useEffect on profileData change
       }
     } catch (error) {
       console.error('Error toggling follow:', error);
@@ -328,75 +328,6 @@ const RecruiterProfile = () => {
       setFollowLoading(false);
     }
   };
-
-  const fetchFollowers = async () => {
-    try {
-      setFollowersLoading(true);
-      const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/api/follow/followers/${profileData._id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      );
-      setFollowers(response.data.followers);
-    } catch (error) {
-      console.error('Error fetching followers:', error);
-    } finally {
-      setFollowersLoading(false);
-    }
-  };
-
-  const fetchFollowing = async () => {
-    try {
-      setFollowingLoading(true);
-      const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/api/follow/following/${profileData._id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      );
-      setFollowing(response.data.following);
-    } catch (error) {
-      console.error('Error fetching following:', error);
-    } finally {
-      setFollowingLoading(false);
-    }
-  };
-
-  const checkFollowStatus = async () => {
-    if (!currentUser || !profileData) return;
-
-    try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/api/follow/status/${profileData._id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      );
-      setIsFollowing(response.data.isFollowing);
-    } catch (error) {
-      console.error('Error checking follow status:', error);
-    }
-  };
-
-  useEffect(() => {
-    if (currentUser && profileData) {
-      checkFollowStatus();
-    }
-  }, [currentUser, profileData]);
-
-  useEffect(() => {
-    if (profileData) {
-      fetchFollowers();
-      fetchFollowing();
-    }
-  }, [profileData]);
 
   const handleMessageClick = (profile) => {
     const selectedUser = {
