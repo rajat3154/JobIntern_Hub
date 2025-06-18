@@ -14,58 +14,46 @@ export const AuthProvider = ({ children }) => {
   
   useEffect(() => {
     const checkAuth = async () => {
+      console.log("Checking auth - token:", token ? "exists" : "none");
       try {
-        const headers = {
-          "Content-Type": "application/json",
-        };
-        
-        // Add Authorization header if token exists
-        if (token) {
-          headers.Authorization = `Bearer ${token}`;
+        // Only check auth if we have a token
+        if (!token) {
+          console.log("No token, setting loading to false");
+          setLoading(false);
+          return;
         }
 
-        const response = await api.get(
-          `${apiUrl}/api/v1/check-auth`,
-          {
-            withCredentials: true,
-            headers,
-          }
-        );
+        const response = await api.get(`${apiUrl}/api/v1/check-auth`);
 
         if (response.data.success) {
+          console.log("Auth successful, setting user");
           setUser(response.data.data);
-
-          // Store token from response if available
-          if (response.data.token) {
-            setToken(response.data.token);
-            localStorage.setItem("token", response.data.token);
-          }
+        } else {
+          console.log("Auth failed, clearing token");
+          // Clear invalid token
+          setToken(null);
+          localStorage.removeItem("token");
         }
       } catch (error) {
         console.error("Auth check failed:", error);
         // Clear invalid token
         if (error.response?.status === 401) {
+          console.log("401 error, clearing token");
           setToken(null);
           localStorage.removeItem("token");
         }
       } finally {
+        console.log("Setting loading to false");
         setLoading(false);
       }
     };
 
     checkAuth();
-  }, [token, apiUrl]);
+  }, [apiUrl]); // Only depend on apiUrl
 
   const login = async (email, password) => {
     try {
-      const response = await api.post(
-        `${apiUrl}/api/v1/login`,
-        { email, password },
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      const response = await api.post(`${apiUrl}/api/v1/login`, { email, password });
 
       if (response.data.success) {
         setUser(response.data.user);
@@ -87,30 +75,16 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      const headers = {
-        "Content-Type": "application/json",
-      };
-      
-      if (token) {
-        headers.Authorization = `Bearer ${token}`;
-      }
-
-      await api.get(`${apiUrl}/api/v1/logout`, {
-        withCredentials: true,
-        headers,
-      });
-
+      await api.get(`${apiUrl}/api/v1/logout`);
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
       setUser(null);
       setToken(null);
       localStorage.removeItem("token");
-
-      return { success: true };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || "Logout failed",
-      };
     }
+
+    return { success: true };
   };
 
   const value = {

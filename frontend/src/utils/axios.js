@@ -29,10 +29,9 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      // Clear token on 401 error
+      // Clear token on 401 error but don't redirect automatically
       localStorage.removeItem('token');
-      // Optionally redirect to login
-      window.location.href = '/login';
+      console.log('Token cleared due to 401 error');
     }
     return Promise.reject(error);
   }

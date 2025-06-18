@@ -101,7 +101,7 @@ const Profile = () => {
     if (userId || currentUser?._id) {
       fetchUserProfile();
     }
-  }, [userId, userType, currentUser?._id, navigate]);
+  }, [userId, userType, currentUser?._id, apiUrl]);
 
   useEffect(() => {
     const fetchFollowData = async () => {

@@ -99,8 +99,14 @@ const appRouter = createBrowserRouter([
 function AppContent() {
   const { loading } = useAuth();
 
+  console.log("AppContent render - loading:", loading);
+
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
   }
 
   return <RouterProvider router={appRouter} />;
