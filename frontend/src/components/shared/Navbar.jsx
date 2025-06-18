@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { LogOut, User2 } from "lucide-react";
+import { LogOut, User2, Menu } from "lucide-react";
 import axios from "axios";
 import { USER_API_END_POINT } from "@/utils/constant";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,6 +16,8 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const apiUrl = import.meta.env.VITE_BACKEND_URL;
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
   useEffect(() => {
     if (user) {
       // Set up socket connection when user is logged in
@@ -50,16 +52,23 @@ const Navbar = () => {
   };
 
   return (
-    <div className="bg-black">
-      <div className="flex items-center justify-between mx-auto max-w-7xl h-20 px-4">
+    <div className="bg-black fixed top-0 left-0 w-full z-40 border-b border-gray-800">
+      <div className="flex items-center justify-between mx-auto max-w-7xl h-16 px-4">
         {/* Logo */}
         <div>
-          <Link to="/" className="text-3xl font-bold text-white">
+          <Link to="/" className="text-2xl font-bold text-white">
             JobIntern<span className="text-[#3B82F6]">Hub</span>
           </Link>
         </div>
-
-        <div className="flex items-center gap-6">
+        {/* Hamburger menu for mobile */}
+        <button
+          className="md:hidden p-2 rounded hover:bg-gray-800 text-gray-300 focus:outline-none"
+          onClick={() => setMobileNavOpen((prev) => !prev)}
+        >
+          <Menu className="h-6 w-6" />
+        </button>
+        {/* Desktop nav */}
+        <div className="hidden md:flex items-center gap-6">
           <ul className="flex font-medium items-center gap-5 text-gray-300">
             {user?.role === "recruiter" && (
               <>
@@ -252,6 +261,90 @@ const Navbar = () => {
             </Popover>
           )}
         </div>
+        {/* Mobile nav dropdown */}
+        {mobileNavOpen && (
+          <div className="md:hidden absolute top-16 left-0 w-full bg-black border-b border-gray-800 shadow-lg z-50 animate-fade-in">
+            <ul className="flex flex-col font-medium gap-2 text-gray-300 p-4">
+              {/* ... same nav links as desktop, but stacked ... */}
+              {user?.role === "recruiter" && (
+                <>
+                  <li>
+                    <Link to="/discover" className="block py-2" onClick={() => setMobileNavOpen(false)}>Peoples</Link>
+                  </li>
+                  <li>
+                    <Link to="/notifications" className="block py-2" onClick={() => setMobileNavOpen(false)}>Notifications</Link>
+                  </li>
+                  <li>
+                    <Link to="/messages" className="block py-2" onClick={() => setMobileNavOpen(false)}>Messages</Link>
+                  </li>
+                </>
+              )}
+              {user?.role === "student" && (
+                <>
+                  <li>
+                    <Link to="/" className="block py-2" onClick={() => setMobileNavOpen(false)}>Home</Link>
+                  </li>
+                  <li>
+                    <Link to="/discover" className="block py-2" onClick={() => setMobileNavOpen(false)}>Peoples</Link>
+                  </li>
+                  <li>
+                    <Link to="/jobs" className="block py-2" onClick={() => setMobileNavOpen(false)}>Jobs</Link>
+                  </li>
+                  <li>
+                    <Link to="/internships" className="block py-2" onClick={() => setMobileNavOpen(false)}>Internships</Link>
+                  </li>
+                  <li>
+                    <Link to="/messages" className="block py-2" onClick={() => setMobileNavOpen(false)}>Messages</Link>
+                  </li>
+                  <li>
+                    <Link to="/notifications" className="block py-2" onClick={() => setMobileNavOpen(false)}>Notifications</Link>
+                  </li>
+                </>
+              )}
+              {!user && (
+                <>
+                  <li>
+                    <Link to="/login" className="block py-2" onClick={() => setMobileNavOpen(false)}>Login</Link>
+                  </li>
+                  <li>
+                    <Link to="/signup" className="block py-2" onClick={() => setMobileNavOpen(false)}>Signup</Link>
+                  </li>
+                </>
+              )}
+            </ul>
+          </div>
+        )}
+        {/* Avatar/profile always visible */}
+        {user && (
+          <div className="md:hidden ml-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <div>
+                  <Avatar className="w-8 h-8 rounded-full cursor-pointer border border-gray-500">
+                    <AvatarImage
+                      src={user?.profile?.profilePhoto || "/default-profile.png"}
+                      alt="Profile Picture"
+                    />
+                    <AvatarFallback>
+                      {(user?.fullname || user?.companyname || "U")
+                        .split(" ")
+                        .map((word) => word[0])
+                        .join("")
+                        .toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+              </PopoverTrigger>
+              <PopoverContent
+                side="bottom"
+                align="start"
+                className="w-64 p-4 bg-black border-gray-700 text-gray-300 rounded-lg absolute z-50 right-0"
+              >
+                {/* ... existing popover content ... */}
+              </PopoverContent>
+            </Popover>
+          </div>
+        )}
       </div>
     </div>
   );
