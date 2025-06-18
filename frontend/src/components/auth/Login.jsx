@@ -30,12 +30,14 @@ const Login = () => {
 
   const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
+    console.log(e.target.name, e.target.value); // Debug line
   };
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    if (!input.role) {
-      toast.error("Please select a role");
+    console.log(input); // Debug line
+    if (!input.email || !input.password || !input.role) {
+      toast.error("All fields are required");
       return;
     }
 
