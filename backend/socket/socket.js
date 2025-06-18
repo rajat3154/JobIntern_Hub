@@ -16,36 +16,27 @@ const userSockets = new Map();
 export const initSocket = (server) => {
       io = new Server(server, {
             cors: {
-                  origin: function (origin, callback) {
-                        // Allow requests with no origin (like mobile apps or curl requests)
-                        if (!origin) return callback(null, true);
-                        
-                        const allowedOrigins = [
-                              "http://localhost:5173",
-                              "https://job-intern-hub.vercel.app",
-                              "https://thejobinternhub.vercel.app"
-                        ];
-                        
-                        if (allowedOrigins.indexOf(origin) !== -1) {
-                              callback(null, true);
-                        } else {
-                              console.log("Socket CORS blocked origin:", origin);
-                              callback(new Error("Not allowed by CORS"));
-                        }
-                  },
-                  methods: ["GET", "POST"],
+                  origin: [
+                        "http://localhost:5173",
+                        "https://job-intern-hub.vercel.app",
+                        "https://thejobinternhub.vercel.app"
+                  ],
+                  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
                   credentials: true,
                   allowedHeaders: [
                         "Content-Type", 
                         "Authorization", 
                         "X-Requested-With",
                         "Accept",
-                        "Origin"
+                        "Origin",
+                        "Access-Control-Request-Method",
+                        "Access-Control-Request-Headers"
                   ]
             },
             transports: ['websocket', 'polling'],
             path: '/socket.io/',
-            pingTimeout: 60000
+            pingTimeout: 60000,
+            pingInterval: 25000
       });
 
       // Set io instance in utility
@@ -59,10 +50,11 @@ export const initSocket = (server) => {
             }
 
             try {
-                  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                  const decoded = jwt.verify(token, process.env.SECRET_KEY);
                   socket.user = decoded;
                   next();
             } catch (err) {
+                  console.error("Socket authentication error:", err.message);
                   return next(new Error("Authentication error"));
             }
       });

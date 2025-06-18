@@ -33,7 +33,7 @@ router.route("/test").get(async (req, res) => {
 
 router.route("/post").post(isAuthenticated, postJob);
 router.route("/get").get(isAuthenticated, getAllJobs);
-router.route("/get/:id").get(getJobById);
+router.route("/get/:id").get(isAuthenticated, getJobById);
 router.route("/recruiter-jobs").get(isAuthenticated, getRecruiterJobs);
 router.route("/latest").get(getLatestJobs); 
 router.route("/is-saved/:id").get(isAuthenticated, isJobSaved);

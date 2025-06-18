@@ -15,6 +15,8 @@ const JobDescription = () => {
   const { user } = useSelector((store) => store.auth);
   const [isApplied, setIsApplied] = useState(false);
   const [isApplying, setIsApplying] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const apiUrl = import.meta.env.VITE_BACKEND_URL;
   console.log("📌 Job ID from URL:", jobId);
   console.log("👤 Logged-in user:", user);
@@ -23,6 +25,8 @@ const JobDescription = () => {
   useEffect(() => {
     const fetchSingleJob = async () => {
       try {
+        setIsLoading(true);
+        setError(null);
         console.log("=== FETCH SINGLE JOB DEBUG ===");
         console.log("Fetching job with ID:", jobId);
         
@@ -34,10 +38,22 @@ const JobDescription = () => {
           dispatch(setSingleJob(res.data.data));
         } else {
           console.error("Job fetch failed:", res.data.message);
+          setError(res.data.message || "Job not found");
+          toast.error(res.data.message || "Job not found");
         }
       } catch (error) {
         console.error("❌ Error fetching job:", error);
         console.error("Error response:", error.response?.data);
+        
+        if (error.response?.status === 404) {
+          setError("Job not found. It may have been removed or the link is invalid.");
+          toast.error("Job not found. It may have been removed or the link is invalid.");
+        } else {
+          setError("Failed to load job details. Please try again.");
+          toast.error("Failed to load job details. Please try again.");
+        }
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -113,6 +129,35 @@ const JobDescription = () => {
       setIsApplying(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="bg-black text-white min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-lg">Loading job details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-black text-white min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h1 className="text-2xl font-bold mb-4">Oops!</h1>
+          <p className="text-gray-300 mb-6">{error}</p>
+          <button 
+            onClick={() => window.history.back()} 
+            className="bg-blue-500 hover:bg-blue-600 px-6 py-2 rounded-lg"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!singleJob) {
     return (
