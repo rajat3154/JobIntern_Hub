@@ -167,6 +167,9 @@ export const login = async (req, res) => {
                   { expiresIn: "1d" }
             );
 
+            console.log("Login - Token generated:", token ? "Token created" : "No token");
+            console.log("Login - SECRET_KEY exists:", process.env.SECRET_KEY ? "Yes" : "No");
+
             const userResponse =
                   role === "student"
                         ? {
@@ -193,6 +196,7 @@ export const login = async (req, res) => {
                         ? `Welcome back ${user.fullname}`
                         : `Welcome back ${user.companyname}`;
 
+            console.log("Login - Setting cookie with token");
             return res
                   .status(200)
                   .cookie("token", token, {

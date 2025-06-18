@@ -11,6 +11,27 @@ export const AuthProvider = ({ children }) => {
   );
   const [loading, setLoading] = useState(true);
   const apiUrl = import.meta.env.VITE_BACKEND_URL;
+
+  // Set up axios interceptor to include token in headers
+  useEffect(() => {
+    const interceptor = axios.interceptors.request.use(
+      (config) => {
+        const token = localStorage.getItem("token");
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      axios.interceptors.request.eject(interceptor);
+    };
+  }, []);
+
   useEffect(() => {
     const checkAuth = async () => {
       try {

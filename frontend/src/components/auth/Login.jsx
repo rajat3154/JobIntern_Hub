@@ -52,6 +52,13 @@ const Login = () => {
 
       if (res.data.success) {
         dispatch(setUser(res.data.user));
+        
+        // Store the token in localStorage
+        if (res.data.token) {
+          localStorage.setItem("token", res.data.token);
+          console.log("Token stored:", res.data.token ? "Yes" : "No");
+        }
+        
         if (input.role === "admin") {
           navigate("/admin");
         } else {

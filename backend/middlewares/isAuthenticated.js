@@ -6,22 +6,47 @@ dotenv.config();
 // Authentication Middleware
 const isAuthenticated = async (req, res, next) => {
       try {
-            // Retrieve token from cookies
-            const token = req.cookies.token;
-            console.log(token)
+            // Retrieve token from cookies first, then from Authorization header
+            let token = req.cookies.token;
+            
+            // If no token in cookies, check Authorization header
+            if (!token && req.headers.authorization) {
+                  const authHeader = req.headers.authorization;
+                  if (authHeader.startsWith('Bearer ')) {
+                        token = authHeader.substring(7);
+                  }
+            }
+            
+            console.log("Auth middleware - Token from cookies:", req.cookies.token ? "Token exists" : "No token");
+            console.log("Auth middleware - Token from header:", req.headers.authorization ? "Token exists" : "No token");
+            console.log("Auth middleware - Final token:", token ? "Token exists" : "No token");
+            console.log("Auth middleware - All cookies:", req.cookies);
+            
             // Check if token exists
             if (!token) {
+                  console.log("Auth middleware - No token found in cookies or headers");
                   return res.status(401).json({
                         message: "User not authenticated, token missing",
                         success: false,
                   });
             }
 
+            // Check if SECRET_KEY is set
+            if (!process.env.SECRET_KEY) {
+                  console.error("Auth middleware - SECRET_KEY not set in environment");
+                  return res.status(500).json({
+                        message: "Server configuration error",
+                        success: false,
+                  });
+            }
+
             // Verify the token
             const decoded = jwt.verify(token, process.env.SECRET_KEY);
+            console.log("Auth middleware - Token decoded successfully:", decoded);
 
             // Ensure the decoded token has the required userId
             if (!decoded || !decoded.userId) {
+                  console.log("Auth middleware - Invalid token or missing userId");
                   return res.status(401).json({
                         message: "Invalid token or missing userId",
                         success: false,
