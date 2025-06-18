@@ -60,7 +60,7 @@ const RecruiterProfile = () => {
         setProfileData(profileRes.data.data);
 
         const jobsRes = await axios.get(
-          `${apiUrl}/api/v1/job/recruiter/${isOwnProfile ? currentUser._id : id}`,
+          `${apiUrl}/api/v1/job/recruiter-jobs`,
           { withCredentials: true }
         );
         setPostedJobs(jobsRes.data.jobs || []);
