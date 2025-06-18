@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setUser as setReduxUser, setToken as setReduxToken } from "../redux/authSlice";
 import api from "../utils/axios";
+import { debugAuthState } from "../utils/authDebug";
 
 const AuthContext = createContext();
 
@@ -18,15 +19,37 @@ export const AuthProvider = ({ children }) => {
   
   // Initialize token from localStorage if not in Redux
   useEffect(() => {
+    console.log("=== TOKEN DEBUGGING ===");
+    console.log("Redux token:", reduxToken);
+    console.log("Redux user:", reduxUser);
+    
+    // Run comprehensive auth state debug
+    debugAuthState();
+    
     if (!reduxToken) {
-      console.log("Checking localStorage for token...");
+      console.log("No token in Redux, checking localStorage...");
+      console.log("All localStorage keys:", Object.keys(localStorage));
       
-      const storedToken = localStorage.getItem("token");
-      if (storedToken) {
-        console.log("Found token in localStorage, adding to Redux");
-        dispatch(setReduxToken(storedToken));
+      // Check for token in different possible locations
+      const tokenKeys = ['token', 'authToken', 'accessToken', 'jwt', 'userToken'];
+      let foundToken = null;
+      let foundKey = null;
+      
+      for (const key of tokenKeys) {
+        const value = localStorage.getItem(key);
+        if (value) {
+          console.log(`Found token in localStorage['${key}']:`, value.substring(0, 20) + "...");
+          foundToken = value;
+          foundKey = key;
+          break;
+        }
+      }
+      
+      if (foundToken) {
+        console.log(`Using token from localStorage['${foundKey}']`);
+        dispatch(setReduxToken(foundToken));
       } else {
-        console.log("No token found in localStorage");
+        console.log("No token found in any localStorage location");
         // If user exists but no token, they need to re-login
         if (reduxUser) {
           console.log("User exists but no token - redirecting to login");
@@ -37,7 +60,10 @@ export const AuthProvider = ({ children }) => {
           window.location.href = '/login';
         }
       }
+    } else {
+      console.log("Token found in Redux:", reduxToken.substring(0, 20) + "...");
     }
+    console.log("=== END TOKEN DEBUGGING ===");
   }, [reduxToken, dispatch, reduxUser]);
   
   // Sync with Redux user
@@ -105,20 +131,32 @@ export const AuthProvider = ({ children }) => {
   }, [apiUrl, dispatch, reduxToken]); // Depend on reduxToken
 
   const login = async (email, password) => {
+    console.log("=== LOGIN DEBUGGING ===");
+    console.log("Login attempt for:", email);
+    
     try {
       const response = await api.post(`${apiUrl}/api/v1/login`, { email, password });
+      console.log("Login response:", response.data);
 
       if (response.data.success) {
+        console.log("Login successful, setting user and token");
         setUser(response.data.user);
         dispatch(setReduxUser(response.data.user));
 
         if (response.data.token) {
+          console.log("Token received from login:", response.data.token.substring(0, 20) + "...");
           dispatch(setReduxToken(response.data.token));
+          console.log("Token stored in Redux");
+        } else {
+          console.log("No token received from login response");
         }
 
+        console.log("=== END LOGIN DEBUGGING ===");
         return { success: true };
       }
     } catch (error) {
+      console.error("Login error:", error);
+      console.log("=== END LOGIN DEBUGGING ===");
       return {
         success: false,
         error: error.response?.data?.message || "Login failed",

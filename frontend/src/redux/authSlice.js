@@ -19,12 +19,17 @@ const authSlice = createSlice({
                   state.user = action.payload;
             },
             setToken: (state, action) => {
+                  console.log("=== REDUX TOKEN SETTER ===");
+                  console.log("Setting token in Redux:", action.payload ? action.payload.substring(0, 20) + "..." : "null");
                   state.token = action.payload;
                   if (action.payload) {
                         localStorage.setItem("token", action.payload);
+                        console.log("Token also stored in localStorage");
                   } else {
                         localStorage.removeItem("token");
+                        console.log("Token removed from localStorage");
                   }
+                  console.log("=== END REDUX TOKEN SETTER ===");
             },
             setLoading: (state, action) => {
                   state.loading = action.payload;

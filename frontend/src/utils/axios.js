@@ -14,9 +14,19 @@ api.interceptors.request.use(
   (config) => {
     const state = store.getState();
     const token = state.auth.token;
+    
+    console.log("=== AXIOS REQUEST DEBUG ===");
+    console.log("Request URL:", config.url);
+    console.log("Token available:", token ? "Yes" : "No");
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log("Authorization header added");
+    } else {
+      console.log("No token available for request");
     }
+    console.log("=== END AXIOS REQUEST DEBUG ===");
+    
     return config;
   },
   (error) => {
