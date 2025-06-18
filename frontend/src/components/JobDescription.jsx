@@ -23,16 +23,21 @@ const JobDescription = () => {
   useEffect(() => {
     const fetchSingleJob = async () => {
       try {
-        const res = await axios.get(`${apiUrl}/api/v1/job/get/${jobId}`, {
-          withCredentials: true,
-        });
+        console.log("=== FETCH SINGLE JOB DEBUG ===");
+        console.log("Fetching job with ID:", jobId);
+        
+        const res = await axios.get(`${apiUrl}/api/v1/job/get/${jobId}`);
+        
         console.log("📥 Job fetch response:", res.data);
+        
         if (res.data.success) {
-          dispatch(setSingleJob(res.data.job));
+          dispatch(setSingleJob(res.data.data));
+        } else {
+          console.error("Job fetch failed:", res.data.message);
         }
       } catch (error) {
         console.error("❌ Error fetching job:", error);
-       
+        console.error("Error response:", error.response?.data);
       }
     };
 

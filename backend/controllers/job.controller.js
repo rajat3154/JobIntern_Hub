@@ -72,19 +72,40 @@ export const getAllJobs = async (req, res) => {
 };
 
 // Get job by ID
-export const getJobById = asyncHandler(async (req, res) => {
-    const { jobId } = req.params;
+export const getJobById = async (req, res) => {
+    try {
+        console.log("=== GET JOB BY ID DEBUG ===");
+        console.log("User authenticated:", req.user);
+        console.log("Job ID from params:", req.params.id);
+        
+        const { id: jobId } = req.params;
 
-    const job = await Job.findById(jobId)
-        .populate('created_by', 'companyName companyLogo')
-        .populate('applications');
+        const job = await Job.findById(jobId)
+            .populate('created_by', 'companyName companyLogo')
+            .populate('applications');
 
-    if (!job) {
-        throw new ApiError(404, "Job not found");
+        console.log("Job found:", job ? "Yes" : "No");
+
+        if (!job) {
+            return res.status(404).json({
+                success: false,
+                message: "Job not found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: job,
+            message: "Job fetched successfully"
+        });
+    } catch (error) {
+        console.error("Get job by ID error:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Error fetching job"
+        });
     }
-
-    return res.status(200).json(new ApiResponse(200, job, "Job fetched successfully"));
-});
+};
 
 // Get jobs posted by a specific recruiter
 export const getRecruiterJobs = async (req, res) => {

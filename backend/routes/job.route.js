@@ -5,9 +5,35 @@ import { Job } from "../models/job.model.js";
 import { Student } from "../models/student.model.js";
 
 const router = express.Router();
+
+// Test endpoint to check if jobs exist
+router.route("/test").get(async (req, res) => {
+  try {
+    console.log("=== TEST JOBS ENDPOINT ===");
+    const jobs = await Job.find().limit(5);
+    console.log("Jobs found:", jobs.length);
+    console.log("Job IDs:", jobs.map(job => job._id));
+    
+    return res.status(200).json({
+      success: true,
+      data: {
+        totalJobs: jobs.length,
+        jobs: jobs.map(job => ({ id: job._id, title: job.title }))
+      },
+      message: "Test endpoint working"
+    });
+  } catch (error) {
+    console.error("Test endpoint error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
 router.route("/post").post(isAuthenticated, postJob);
 router.route("/get").get(isAuthenticated, getAllJobs);
-router.route("/get/:id").get(isAuthenticated, getJobById);
+router.route("/get/:id").get(getJobById);
 router.route("/recruiter-jobs").get(isAuthenticated, getRecruiterJobs);
 router.route("/latest").get(getLatestJobs); 
 router.route("/is-saved/:id").get(isAuthenticated, isJobSaved);
