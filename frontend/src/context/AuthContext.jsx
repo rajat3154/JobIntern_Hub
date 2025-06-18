@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
         const token = localStorage.getItem("token");
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
-          console.log("Axios interceptor - Added Authorization header");
+          console.log("Axios interceptor - Added Authorization header:", config.headers.Authorization ? "Yes" : "No");
         } else {
           console.log("Axios interceptor - No token found in localStorage");
         }

@@ -26,20 +26,20 @@ const io = initSocket(server);
 // Comprehensive CORS configuration for production
 const corsOptions = {
     origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
         const allowedOrigins = [
             "http://localhost:5173",
             "https://job-intern-hub.vercel.app",
             "https://thejobinternhub.vercel.app"
         ];
         
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        
         if (allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
             console.log("CORS blocked origin:", origin);
-            callback(new Error('Not allowed by CORS'));
+            callback(new Error("Not allowed by CORS"));
         }
     },
     credentials: true,
@@ -50,10 +50,10 @@ const corsOptions = {
         "X-Requested-With",
         "Accept",
         "Origin",
-        "Cache-Control",
-        "X-File-Name"
+        "Access-Control-Request-Method",
+        "Access-Control-Request-Headers"
     ],
-    exposedHeaders: ["Set-Cookie", "Content-Length", "X-Requested-With"],
+    exposedHeaders: ["Set-Cookie", "Authorization"],
     preflightContinue: false,
     optionsSuccessStatus: 200
 };
@@ -64,22 +64,21 @@ app.use(cors(corsOptions));
 // Handle preflight requests
 app.options('*', cors(corsOptions));
 
-// Request logging middleware
-app.use((req, res, next) => {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-    console.log('Origin:', req.headers.origin);
-    console.log('User-Agent:', req.headers['user-agent']);
-    console.log('Authorization:', req.headers.authorization ? 'Present' : 'Not present');
-    console.log('Cookies:', Object.keys(req.cookies));
-    next();
-});
-
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
 
 // Make io accessible to routes if needed
 app.set('io', io);
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        message: 'Server is running',
+        timestamp: new Date().toISOString(),
+        cors: 'enabled'
+    });
+});
 
 app.use("/api/v1/message", messageRoute);
 app.use("/api/v1", studentRoute);

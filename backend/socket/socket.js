@@ -17,25 +17,31 @@ export const initSocket = (server) => {
       io = new Server(server, {
             cors: {
                   origin: function (origin, callback) {
+                        // Allow requests with no origin (like mobile apps or curl requests)
+                        if (!origin) return callback(null, true);
+                        
                         const allowedOrigins = [
                               "http://localhost:5173",
                               "https://job-intern-hub.vercel.app",
                               "https://thejobinternhub.vercel.app"
                         ];
                         
-                        // Allow requests with no origin
-                        if (!origin) return callback(null, true);
-                        
                         if (allowedOrigins.indexOf(origin) !== -1) {
                               callback(null, true);
                         } else {
                               console.log("Socket CORS blocked origin:", origin);
-                              callback(new Error('Not allowed by CORS'));
+                              callback(new Error("Not allowed by CORS"));
                         }
                   },
                   methods: ["GET", "POST"],
                   credentials: true,
-                  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
+                  allowedHeaders: [
+                        "Content-Type", 
+                        "Authorization", 
+                        "X-Requested-With",
+                        "Accept",
+                        "Origin"
+                  ]
             },
             transports: ['websocket', 'polling'],
             path: '/socket.io/',
