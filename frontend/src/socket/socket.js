@@ -1,6 +1,5 @@
 import { io } from "socket.io-client";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
-const SOCKET_URL = `${apiUrl}`;
 
 let socket;
 
@@ -9,7 +8,17 @@ export const initSocket = () => {
     const token = localStorage.getItem("token");
     console.log("Initializing socket with token:", token ? "Token exists" : "No token");
     
-    socket = io(SOCKET_URL, {
+    // Clean the API URL to remove any spaces or formatting issues
+    const cleanApiUrl = apiUrl?.trim();
+    
+    if (!cleanApiUrl || cleanApiUrl.includes('undefined')) {
+      console.error("Invalid API URL for socket connection:", apiUrl);
+      return null;
+    }
+    
+    console.log("Connecting socket to:", cleanApiUrl);
+    
+    socket = io(cleanApiUrl, {
       withCredentials: true,
       auth: {
         token: token

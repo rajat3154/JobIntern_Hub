@@ -1,6 +1,6 @@
 // context/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
+import api from "../utils/axios";
 
 const AuthContext = createContext();
 
@@ -11,14 +11,24 @@ export const AuthProvider = ({ children }) => {
   );
   const [loading, setLoading] = useState(true);
   const apiUrl = import.meta.env.VITE_BACKEND_URL;
+  
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await axios.get(
+        const headers = {
+          "Content-Type": "application/json",
+        };
+        
+        // Add Authorization header if token exists
+        if (token) {
+          headers.Authorization = `Bearer ${token}`;
+        }
+
+        const response = await api.get(
           `${apiUrl}/api/v1/check-auth`,
           {
             withCredentials: true,
-            headers: { "Content-Type": "application/json" },
+            headers,
           }
         );
 
@@ -33,17 +43,22 @@ export const AuthProvider = ({ children }) => {
         }
       } catch (error) {
         console.error("Auth check failed:", error);
+        // Clear invalid token
+        if (error.response?.status === 401) {
+          setToken(null);
+          localStorage.removeItem("token");
+        }
       } finally {
         setLoading(false);
       }
     };
 
     checkAuth();
-  }, []);
+  }, [token, apiUrl]);
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post(
+      const response = await api.post(
         `${apiUrl}/api/v1/login`,
         { email, password },
         {
@@ -72,9 +87,17 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.get(`${apiUrl}/api/v1/logout`, {
+      const headers = {
+        "Content-Type": "application/json",
+      };
+      
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      await api.get(`${apiUrl}/api/v1/logout`, {
         withCredentials: true,
-        headers: { "Content-Type": "application/json" },
+        headers,
       });
 
       setUser(null);
