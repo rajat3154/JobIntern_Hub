@@ -33,27 +33,43 @@ export const postJob = asyncHandler(async (req, res) => {
 });
 
 // Get all jobs with search functionality
-export const getAllJobs = asyncHandler(async (req, res) => {
-    const { search } = req.query;
-    const query = search ? {
-        $or: [
-            { title: { $regex: search, $options: 'i' } },
-            { description: { $regex: search, $options: 'i' } },
-            { company: { $regex: search, $options: 'i' } },
-            { location: { $regex: search, $options: 'i' } }
-        ]
-    } : {};
+export const getAllJobs = async (req, res) => {
+    try {
+        console.log("=== GET ALL JOBS DEBUG ===");
+        console.log("User authenticated:", req.user);
+        console.log("Query parameters:", req.query);
+        
+        const { search } = req.query;
+        const query = search ? {
+            $or: [
+                { title: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } },
+                { company: { $regex: search, $options: 'i' } },
+                { location: { $regex: search, $options: 'i' } }
+            ]
+        } : {};
 
-    const jobs = await Job.find(query)
-        .populate('created_by', 'companyName companyLogo')
-        .sort({ createdAt: -1 });
+        console.log("Database query:", query);
 
-    if (!jobs.length) {
-        return res.status(200).json(new ApiResponse(200, [], "No jobs found"));
+        const jobs = await Job.find(query)
+            .populate('created_by', 'companyName companyLogo')
+            .sort({ createdAt: -1 });
+
+        console.log("Jobs found:", jobs.length);
+
+        return res.status(200).json({
+            success: true,
+            data: jobs,
+            message: jobs.length > 0 ? "Jobs fetched successfully" : "No jobs found"
+        });
+    } catch (error) {
+        console.error("Get all jobs error:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Error fetching jobs"
+        });
     }
-
-    return res.status(200).json(new ApiResponse(200, jobs, "Jobs fetched successfully"));
-});
+};
 
 // Get job by ID
 export const getJobById = asyncHandler(async (req, res) => {
@@ -71,67 +87,142 @@ export const getJobById = asyncHandler(async (req, res) => {
 });
 
 // Get jobs posted by a specific recruiter
-export const getRecruiterJobs = asyncHandler(async (req, res) => {
-    const recruiterId = req.user._id;
+export const getRecruiterJobs = async (req, res) => {
+    try {
+        console.log("=== GET RECRUITER JOBS DEBUG ===");
+        console.log("User authenticated:", req.user);
+        
+        const recruiterId = req.user._id;
 
-    const jobs = await Job.find({ created_by: recruiterId })
-        .populate('created_by', 'companyName companyLogo')
-        .sort({ createdAt: -1 });
+        const jobs = await Job.find({ created_by: recruiterId })
+            .populate('created_by', 'companyName companyLogo')
+            .sort({ createdAt: -1 });
 
-    if (!jobs.length) {
-        return res.status(200).json(new ApiResponse(200, [], "No jobs found for this recruiter"));
+        console.log("Recruiter jobs found:", jobs.length);
+
+        return res.status(200).json({
+            success: true,
+            data: jobs,
+            message: jobs.length > 0 ? "Recruiter jobs fetched successfully" : "No jobs found for this recruiter"
+        });
+    } catch (error) {
+        console.error("Get recruiter jobs error:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Error fetching recruiter jobs"
+        });
     }
-
-    return res.status(200).json(new ApiResponse(200, jobs, "Recruiter jobs fetched successfully"));
-});
+};
 
 // Get latest jobs (for homepage)
-export const getLatestJobs = asyncHandler(async (req, res) => {
-    const jobs = await Job.find()
-        .populate('created_by', 'companyName companyLogo')
-        .sort({ createdAt: -1 })
-        .limit(5);
+export const getLatestJobs = async (req, res) => {
+    try {
+        console.log("=== GET LATEST JOBS DEBUG ===");
+        
+        const jobs = await Job.find()
+            .populate('created_by', 'companyName companyLogo')
+            .sort({ createdAt: -1 })
+            .limit(5);
 
-    return res.status(200).json(new ApiResponse(200, jobs, "Latest jobs fetched successfully"));
-});
+        console.log("Latest jobs found:", jobs.length);
+
+        return res.status(200).json({
+            success: true,
+            data: jobs,
+            message: "Latest jobs fetched successfully"
+        });
+    } catch (error) {
+        console.error("Get latest jobs error:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Error fetching latest jobs"
+        });
+    }
+};
 
 // Check if a job is saved by a student
-export const isJobSaved = asyncHandler(async (req, res) => {
-    const { jobId } = req.params;
-    const studentId = req.user._id;
+export const isJobSaved = async (req, res) => {
+    try {
+        console.log("=== IS JOB SAVED DEBUG ===");
+        console.log("User authenticated:", req.user);
+        console.log("Job ID:", req.params.id);
+        
+        const { id: jobId } = req.params;
+        const studentId = req.user._id;
 
-    const student = await Student.findById(studentId);
-    if (!student) {
-        throw new ApiError(404, "Student not found");
+        const student = await Student.findById(studentId);
+        if (!student) {
+            return res.status(404).json({
+                success: false,
+                message: "Student not found"
+            });
+        }
+
+        const isSaved = student.savedJobs.includes(jobId);
+        console.log("Job saved status:", isSaved);
+        
+        return res.status(200).json({
+            success: true,
+            data: { isSaved },
+            message: "Job save status checked"
+        });
+    } catch (error) {
+        console.error("Is job saved error:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Error checking job save status"
+        });
     }
-
-    const isSaved = student.savedJobs.includes(jobId);
-    return res.status(200).json(new ApiResponse(200, { isSaved }, "Job save status checked"));
-});
+};
 
 // Save/unsave a job
-export const saveJob = asyncHandler(async (req, res) => {
-    const { jobId } = req.params;
-    const studentId = req.user._id;
+export const saveJob = async (req, res) => {
+    try {
+        console.log("=== SAVE JOB DEBUG ===");
+        console.log("User authenticated:", req.user);
+        console.log("Job ID:", req.params.id);
+        
+        const { id: jobId } = req.params;
+        const studentId = req.user._id;
 
-    const student = await Student.findById(studentId);
-    if (!student) {
-        throw new ApiError(404, "Student not found");
-    }
+        const student = await Student.findById(studentId);
+        if (!student) {
+            return res.status(404).json({
+                success: false,
+                message: "Student not found"
+            });
+        }
 
-    const jobIndex = student.savedJobs.indexOf(jobId);
-    if (jobIndex === -1) {
-        // Save job
-        student.savedJobs.push(jobId);
-        await student.save();
-        return res.status(200).json(new ApiResponse(200, null, "Job saved successfully"));
-    } else {
-        // Unsave job
-        student.savedJobs.splice(jobIndex, 1);
-        await student.save();
-        return res.status(200).json(new ApiResponse(200, null, "Job unsaved successfully"));
+        const jobIndex = student.savedJobs.indexOf(jobId);
+        if (jobIndex === -1) {
+            // Save job
+            student.savedJobs.push(jobId);
+            await student.save();
+            console.log("Job saved successfully");
+            return res.status(200).json({
+                success: true,
+                data: { isSaved: true },
+                message: "Job saved successfully"
+            });
+        } else {
+            // Unsave job
+            student.savedJobs.splice(jobIndex, 1);
+            await student.save();
+            console.log("Job unsaved successfully");
+            return res.status(200).json({
+                success: true,
+                data: { isSaved: false },
+                message: "Job unsaved successfully"
+            });
+        }
+    } catch (error) {
+        console.error("Save job error:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Error saving/unsaving job"
+        });
     }
-});
+};
 
 // Delete a job
 export const deleteJobById = asyncHandler(async (req, res) => {

@@ -7,6 +7,7 @@ import { setAllJobs } from "@/redux/jobSlice";
 import PostJob from "./recruiter/PostJob";
 import { Bookmark, BookmarkCheck, Search } from "lucide-react";
 import { toast } from "sonner";
+import axios from "axios";
 
 const Jobs = () => {
   const navigate = useNavigate();
@@ -24,23 +25,21 @@ const Jobs = () => {
     const checkIfJobSaved = async () => {
       if (!user || !currentJobId) return;
       try {
-        const response = await fetch(
-          `${apiUrl}/api/v1/job/is-saved/${currentJobId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-          }
+        console.log("=== CHECK JOB SAVED DEBUG ===");
+        console.log("Checking if job is saved for jobId:", currentJobId);
+        
+        const response = await axios.get(
+          `${apiUrl}/api/v1/job/is-saved/${currentJobId}`
         );
 
-        if (response.ok) {
-          const data = await response.json();
-          setIsSaved(data.isSaved);
+        console.log("Job saved check response:", response.data);
+
+        if (response.data.success) {
+          setIsSaved(response.data.data.isSaved);
         }
       } catch (error) {
         console.error("Error checking saved status:", error);
+        console.error("Error response:", error.response?.data);
       }
     };
 
@@ -57,51 +56,44 @@ const Jobs = () => {
     setCurrentJobId(jobId);
 
     try {
-      const response = await fetch(
-        `${apiUrl}/api/v1/job/save-job/${jobId}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        }
+      console.log("=== SAVE JOB DEBUG ===");
+      console.log("Saving job with jobId:", jobId);
+      
+      const response = await axios.post(
+        `${apiUrl}/api/v1/job/save-job/${jobId}`
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to save job");
-      }
+      console.log("Save job response:", response.data);
 
-      const data = await response.json();
-      if (data.success) {
-        setIsSaved(data.isSaved);
-        toast.success(data.message);
+      if (response.data.success) {
+        setIsSaved(response.data.data.isSaved);
+        toast.success(response.data.message);
       }
     } catch (error) {
       console.error("Error saving job:", error);
+      console.error("Error response:", error.response?.data);
       toast.error("Failed to save job");
     }
   };
 
   const fetchJobs = async () => {
     try {
-      const response = await fetch(
-        `${apiUrl}/api/v1/job/recruiter/get`,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-        }
-      );
+      console.log("=== FETCH RECRUITER JOBS DEBUG ===");
+      console.log("Using axios for recruiter job fetch");
+      
+      const response = await axios.get(`${apiUrl}/api/v1/job/recruiter-jobs`);
 
-      const data = await response.json();
+      console.log("Recruiter jobs response:", response.data);
 
-      if (data.success && Array.isArray(data.jobs)) {
-        dispatch(setAllJobs(data.jobs));
-        setFilteredJobs(data.jobs);
+      if (response.data.success && Array.isArray(response.data.data)) {
+        dispatch(setAllJobs(response.data.data));
+        setFilteredJobs(response.data.data);
+      } else {
+        console.error("Invalid recruiter jobs response format:", response.data);
       }
     } catch (error) {
       console.error("Error fetching recruiter jobs:", error);
+      console.error("Error response:", error.response?.data);
     }
   };
 
@@ -115,22 +107,22 @@ const Jobs = () => {
 
   const fetchAllJobs = async () => {
     try {
-      const response = await fetch(`${apiUrl}/api/v1/job/get`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+      console.log("=== FETCH ALL JOBS DEBUG ===");
+      console.log("Using axios for job fetch");
+      
+      const response = await axios.get(`${apiUrl}/api/v1/job/get`);
 
-      const data = await response.json();
+      console.log("Jobs response:", response.data);
 
-      if (data.success && Array.isArray(data.jobs)) {
-        dispatch(setAllJobs(data.jobs));
-        setFilteredJobs(data.jobs);
+      if (response.data.success && Array.isArray(response.data.data)) {
+        dispatch(setAllJobs(response.data.data));
+        setFilteredJobs(response.data.data);
+      } else {
+        console.error("Invalid response format:", response.data);
       }
     } catch (error) {
       console.error("Error fetching all jobs:", error);
+      console.error("Error response:", error.response?.data);
     }
   };
 
