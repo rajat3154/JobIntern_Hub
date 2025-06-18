@@ -19,10 +19,16 @@ export const AuthProvider = ({ children }) => {
         const token = localStorage.getItem("token");
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
+          console.log("Axios interceptor - Added Authorization header");
+        } else {
+          console.log("Axios interceptor - No token found in localStorage");
         }
+        console.log("Axios interceptor - Request URL:", config.url);
+        console.log("Axios interceptor - Request headers:", config.headers);
         return config;
       },
       (error) => {
+        console.error("Axios interceptor error:", error);
         return Promise.reject(error);
       }
     );

@@ -23,21 +23,59 @@ const server = createServer(app);
 // Initialize Socket.IO immediately after creating the server
 const io = initSocket(server);
 
-// Updated CORS configuration for production
+// Comprehensive CORS configuration for production
 const corsOptions = {
-    origin: [
-        "http://localhost:5173",
-        "https://job-intern-hub.vercel.app",
-        "https://thejobinternhub.vercel.app"
-    ],
+    origin: function (origin, callback) {
+        const allowedOrigins = [
+            "http://localhost:5173",
+            "https://job-intern-hub.vercel.app",
+            "https://thejobinternhub.vercel.app"
+        ];
+        
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            console.log("CORS blocked origin:", origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-    exposedHeaders: ["Set-Cookie"]
+    allowedHeaders: [
+        "Content-Type", 
+        "Authorization", 
+        "X-Requested-With",
+        "Accept",
+        "Origin",
+        "Cache-Control",
+        "X-File-Name"
+    ],
+    exposedHeaders: ["Set-Cookie", "Content-Length", "X-Requested-With"],
+    preflightContinue: false,
+    optionsSuccessStatus: 200
 };
 
+// Apply CORS before other middleware
 app.use(cors(corsOptions));
-app.use(express.json());
+
+// Handle preflight requests
+app.options('*', cors(corsOptions));
+
+// Request logging middleware
+app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+    console.log('Origin:', req.headers.origin);
+    console.log('User-Agent:', req.headers['user-agent']);
+    console.log('Authorization:', req.headers.authorization ? 'Present' : 'Not present');
+    console.log('Cookies:', Object.keys(req.cookies));
+    next();
+});
+
+app.use(express.json({ limit: "16kb" }));
+app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
 
 // Make io accessible to routes if needed
@@ -54,5 +92,6 @@ app.use("/api/notifications", notificationRoutes);
 
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
+    console.log(`CORS enabled for origins: http://localhost:5173, https://job-intern-hub.vercel.app, https://thejobinternhub.vercel.app`);
     connectDB();
 });
