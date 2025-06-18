@@ -14,11 +14,8 @@ api.interceptors.request.use(
   (config) => {
     const state = store.getState();
     const token = state.auth.token;
-    console.log("Axios request interceptor - token:", token ? "exists" : "none");
-    console.log("Request URL:", config.url);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log("Added Authorization header");
     }
     return config;
   },

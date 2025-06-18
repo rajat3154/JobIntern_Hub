@@ -16,13 +16,50 @@ export const AuthProvider = ({ children }) => {
   const reduxToken = useSelector((state) => state.auth.token);
   const dispatch = useDispatch();
   
+  // Initialize token from localStorage if not in Redux
+  useEffect(() => {
+    if (!reduxToken) {
+      console.log("Checking localStorage for token...");
+      
+      const storedToken = localStorage.getItem("token");
+      if (storedToken) {
+        console.log("Found token in localStorage, adding to Redux");
+        dispatch(setReduxToken(storedToken));
+      } else {
+        console.log("No token found in localStorage");
+        // If user exists but no token, they need to re-login
+        if (reduxUser) {
+          console.log("User exists but no token - redirecting to login");
+          dispatch(setReduxUser(null));
+          // Clear all Redux data
+          localStorage.removeItem("persist:root");
+          // Redirect to login
+          window.location.href = '/login';
+        }
+      }
+    }
+  }, [reduxToken, dispatch, reduxUser]);
+  
   // Sync with Redux user
   useEffect(() => {
     if (reduxUser && !user) {
       console.log("Syncing AuthContext with Redux user");
       setUser(reduxUser);
+      
+      // If we have a user but no token, check localStorage for token
+      if (!reduxToken) {
+        const storedToken = localStorage.getItem("token");
+        if (storedToken) {
+          console.log("Found token in localStorage, adding to Redux");
+          dispatch(setReduxToken(storedToken));
+        } else {
+          console.log("User logged in but no token found - user needs to re-login");
+          // Clear the user since there's no valid token
+          dispatch(setReduxUser(null));
+        }
+      }
     }
-  }, [reduxUser, user]);
+  }, [reduxUser, user, reduxToken, dispatch]);
   
   useEffect(() => {
     const checkAuth = async () => {
