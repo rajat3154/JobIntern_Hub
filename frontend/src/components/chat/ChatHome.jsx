@@ -17,9 +17,12 @@ const ChatHome = () => {
   useEffect(() => {
     if (!authUser?._id) return;
 
-    // Initialize socket connection with httpOnly cookies
+    // Initialize socket connection
     socket.current = io(`${apiUrl}`, {
-      withCredentials: true, // This will send httpOnly cookies automatically
+      withCredentials: true,
+      auth: {
+        token: localStorage.getItem("token")
+      }
     });
 
     // Setup user connection

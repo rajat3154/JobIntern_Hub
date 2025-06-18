@@ -20,7 +20,6 @@ import { SocketProvider } from "./context/SocketContext";
 import { AuthProvider } from "./context/AuthContext";
 import { useAuth } from "./context/AuthContext";
 import Discover from "./components/Discover";
-
 const appRouter = createBrowserRouter([
   {
     path: "/",
@@ -59,23 +58,23 @@ const appRouter = createBrowserRouter([
     element: <RecruiterSignup />,
   },
   {
-    path: "/job/description/:id",
+    path: "job/description/:id",
     element: <JobDescription />,
   },
   {
-    path: "/job/details/:id",
+    path: "job/details/:id",
     element: <JobDetails />,
   },
   {
-    path: "/internship/description/:id",
+    path: "internship/description/:id",
     element: <InternshipDescription />,
   },
   {
-    path: "/internship/details/:id",
+    path: "internship/details/:id",
     element: <InternshipDetails />,
   },
   {
-    path: "/notifications",
+    path: "notifications",
     element: <Notifications />,
   },
   {
@@ -95,28 +94,24 @@ const appRouter = createBrowserRouter([
     element: <Discover />,
   },
 ]);
-
 function AppContent() {
   const { loading } = useAuth();
 
-  console.log("AppContent render - loading:", loading);
-
   if (loading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
-      </div>
-    );
+    return <div>Loading...</div>; // or a spinner, whatever UI you want
   }
 
-  return <RouterProvider router={appRouter} />;
+  return (
+    <SocketProvider>
+      <RouterProvider router={appRouter} />
+    </SocketProvider>
+  );
 }
-
 function App() {
   return (
     <AuthProvider>
       <SocketProvider>
-        <AppContent />
+        <RouterProvider router={appRouter} />
       </SocketProvider>
     </AuthProvider>
   );

@@ -4,7 +4,7 @@ import { Button } from "../ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { LogOut, User2 } from "lucide-react";
-import api from "../../utils/axios";
+import axios from "axios";
 import { USER_API_END_POINT } from "@/utils/constant";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
@@ -32,7 +32,7 @@ const Navbar = () => {
         socket.disconnect();
       }
 
-      const res = await api.get(`${apiUrl}/api/v1/logout`, {
+      const res = await axios.get(`${apiUrl}/api/v1/logout`, {
         withCredentials: true,
       });
 

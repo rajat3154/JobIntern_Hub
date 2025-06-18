@@ -1,24 +1,19 @@
 import { io } from "socket.io-client";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
+const SOCKET_URL = `${apiUrl}`;
 
 let socket;
 
 export const initSocket = () => {
   if (!socket) {
-    console.log("Initializing socket with httpOnly cookies");
+    const token = localStorage.getItem("token");
+    console.log("Initializing socket with token:", token ? "Token exists" : "No token");
     
-    // Clean the API URL to remove any spaces or formatting issues
-    const cleanApiUrl = apiUrl?.trim();
-    
-    if (!cleanApiUrl || cleanApiUrl.includes('undefined')) {
-      console.error("Invalid API URL for socket connection:", apiUrl);
-      return null;
-    }
-    
-    console.log("Connecting socket to:", cleanApiUrl);
-    
-    socket = io(cleanApiUrl, {
-      withCredentials: true, // This will send httpOnly cookies automatically
+    socket = io(SOCKET_URL, {
+      withCredentials: true,
+      auth: {
+        token: token
+      },
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: 5,
@@ -47,11 +42,11 @@ export const getSocket = () => {
   return socket;
 };
 
-// No longer needed since we use httpOnly cookies
-export const updateSocketAuth = () => {
+export const updateSocketAuth = (token) => {
   if (socket) {
-    console.log("Socket auth updated (httpOnly cookies handled automatically)");
-    // No need to manually update auth - cookies are sent automatically
+    console.log("Updating socket auth token");
+    socket.auth = { token };
+    socket.disconnect().connect();
   }
 };
 

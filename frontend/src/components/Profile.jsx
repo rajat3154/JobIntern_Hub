@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../utils/axios";
+import axios from "axios";
 import Navbar from "./shared/Navbar";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
@@ -83,7 +83,7 @@ const Profile = () => {
           return;
         }
 
-        const response = await api.get(endpoint, {
+        const response = await axios.get(endpoint, {
           headers: {
             "Content-Type": "application/json",
           },
@@ -101,7 +101,7 @@ const Profile = () => {
     if (userId || currentUser?._id) {
       fetchUserProfile();
     }
-  }, [userId, userType, currentUser?._id, apiUrl]);
+  }, [userId, userType, currentUser?._id, navigate]);
 
   useEffect(() => {
     const fetchFollowData = async () => {
@@ -112,14 +112,14 @@ const Profile = () => {
         setFollowingLoading(true);
 
         const [followersRes, followingRes] = await Promise.all([
-          api.get(
+          axios.get(
             `${apiUrl}/api/v1/follow/followers/${profileUser._id}/${profileUser.role}`,
             {
               headers: { "Content-Type": "application/json" },
               withCredentials: true,
             }
           ),
-          api.get(
+          axios.get(
             `${apiUrl}/api/v1/follow/following/${profileUser._id}/${profileUser.role}`,
             {
               headers: { "Content-Type": "application/json" },
@@ -145,7 +145,7 @@ const Profile = () => {
   const fetchAppliedJobs = async () => {
     try {
       setJobsLoading(true);
-      const response = await api.get(
+      const response = await axios.get(
         `${apiUrl}/api/v1/application/get`,
         {
           withCredentials: true,
@@ -166,7 +166,7 @@ const Profile = () => {
   const fetchAppliedInternships = async () => {
     try {
       setInternshipsLoading(true);
-      const response = await api.get(
+      const response = await axios.get(
         `${apiUrl}/api/v1/application/internships/get`,
         { withCredentials: true }
       );
@@ -186,7 +186,7 @@ const Profile = () => {
   const fetchSavedJobs = async () => {
     try {
       setSavedJobsLoading(true);
-      const response = await api.get(
+      const response = await axios.get(
         `${apiUrl}/api/v1/job/saved`,
         {
           withCredentials: true,
@@ -206,7 +206,7 @@ const Profile = () => {
   const fetchSavedInternships = async () => {
     try {
       setSavedInternshipsLoading(true);
-      const response = await api.get(
+      const response = await axios.get(
         `${apiUrl}/api/v1/internship/saved`,
         {
           withCredentials: true,
@@ -319,7 +319,7 @@ const Profile = () => {
         ? `${apiUrl}/api/v1/job/save-job/${itemId}`
         : `${apiUrl}/api/v1/internship/save-internship/${itemId}`;
 
-      const response = await api.post(endpoint, {}, { withCredentials: true });
+      const response = await axios.post(endpoint, {}, { withCredentials: true });
 
       if (response.data.success) {
         toast.success(response.data.message);

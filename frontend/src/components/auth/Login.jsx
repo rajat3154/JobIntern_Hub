@@ -5,7 +5,7 @@ import { Label } from "../ui/label";
 import { RadioGroup } from "../ui/radio-group";
 import { Button } from "../ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import api from "../../utils/axios";
+import axios from "axios";
 import { toast } from "sonner";
 import { USER_API_END_POINT } from "@/utils/constant";
 import { useDispatch, useSelector } from "react-redux";
@@ -43,7 +43,7 @@ const Login = () => {
     try {
       dispatch(setLoading(true));
 
-      const res = await api.post(`${apiUrl}/api/v1/login`, input, {
+      const res = await axios.post(`${apiUrl}/api/v1/login`, input, {
         headers: {
           "Content-Type": "application/json",
         },

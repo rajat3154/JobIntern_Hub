@@ -19,21 +19,10 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const { user } = useSelector((state) => state.auth);
   const apiUrl = import.meta.env.VITE_BACKEND_URL;
-  
   useEffect(() => {
-    if (!user?._id || !apiUrl) return;
+    if (!user?._id) return;
 
-    // Clean the API URL to remove any spaces or formatting issues
-    const cleanApiUrl = apiUrl.trim();
-    
-    if (!cleanApiUrl || cleanApiUrl.includes('undefined')) {
-      console.error("Invalid API URL for socket connection:", apiUrl);
-      return;
-    }
-
-    console.log("Connecting socket to:", cleanApiUrl);
-
-    const newSocket = io(cleanApiUrl, {
+    const newSocket = io(`${apiUrl}`, {
       autoConnect: true,
       withCredentials: true,
       transports: ["polling", "websocket"],
@@ -60,7 +49,7 @@ export const SocketProvider = ({ children }) => {
     return () => {
       if (newSocket) newSocket.disconnect();
     };
-  }, [user, apiUrl]);
+  }, [user]);
 
   return (
     <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
