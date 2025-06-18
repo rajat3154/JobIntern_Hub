@@ -20,11 +20,11 @@ const Internships = () => {
     useState([]);
   const [showPostInternship, setShowPostInternship] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   const fetchInternships = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8000/api/v1/internship/get",
+        `${apiUrl}/api/v1/internship/get`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -45,7 +45,7 @@ const Internships = () => {
   const fetchRecruiterInternships = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8000/api/v1/internship/recruiter",
+        `${apiUrl}/api/v1/internship/recruiter`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },

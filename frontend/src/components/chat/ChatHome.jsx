@@ -12,12 +12,13 @@ const ChatHome = () => {
   const dispatch = useDispatch();
   const [unreadCounts, setUnreadCounts] = useState({});
   const socket = useRef(null);
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     if (!authUser?._id) return;
 
     // Initialize socket connection
-    socket.current = io("http://localhost:8000", {
+    socket.current = io(`${apiUrl}`, {
       withCredentials: true,
       auth: {
         token: localStorage.getItem("token")

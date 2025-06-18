@@ -10,12 +10,12 @@ export const AuthProvider = ({ children }) => {
     () => localStorage.getItem("token") || null
   );
   const [loading, setLoading] = useState(true);
-
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:8000/api/v1/check-auth",
+          `${apiUrl}/api/v1/check-auth`,
           {
             withCredentials: true,
             headers: { "Content-Type": "application/json" },
@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/v1/login",
+        `${apiUrl}/api/v1/login`,
         { email, password },
         {
           withCredentials: true,
@@ -72,7 +72,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.get("http://localhost:8000/api/v1/logout", {
+      await axios.get(`${apiUrl}/api/v1/logout`, {
         withCredentials: true,
         headers: { "Content-Type": "application/json" },
       });

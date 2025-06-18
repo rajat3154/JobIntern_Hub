@@ -18,7 +18,7 @@ import { Link } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import Navbar from "./shared/Navbar";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);

@@ -15,7 +15,7 @@ const JobDescription = () => {
   const { user } = useSelector((store) => store.auth);
   const [isApplied, setIsApplied] = useState(false);
   const [isApplying, setIsApplying] = useState(false);
-
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   console.log("📌 Job ID from URL:", jobId);
   console.log("👤 Logged-in user:", user);
 
@@ -23,7 +23,7 @@ const JobDescription = () => {
   useEffect(() => {
     const fetchSingleJob = async () => {
       try {
-        const res = await axios.get(`${JOB_API_END_POINT}/get/${jobId}`, {
+        const res = await axios.get(`${apiUrl}/api/v1/job/get/${jobId}`, {
           withCredentials: true,
         });
         console.log("📥 Job fetch response:", res.data);
@@ -32,7 +32,7 @@ const JobDescription = () => {
         }
       } catch (error) {
         console.error("❌ Error fetching job:", error);
-        toast.error("Failed to load job data.");
+       
       }
     };
 
@@ -60,7 +60,7 @@ const JobDescription = () => {
     
     
       const res = await axios.post(
-        `${APPLICATION_API_END_POINT}/apply/${jobId}`,{},
+        `${apiUrl}/api/v1/application/apply/${jobId}`,{},
         {
           withCredentials: true,
          

@@ -48,20 +48,20 @@ const RecruiterProfile = () => {
   const [currentJobId, setCurrentJobId] = useState(null);
   const { user: currentUser } = useSelector((store) => store.auth);
   const navigate = useNavigate();
-
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     const fetchAllData = async () => {
       try {
         setLoading(true);
 
         const profileRes = await axios.get(
-          `http://localhost:8000/api/v1/recruiter/profile/${currentUser._id}`,
+          `${apiUrl}/api/v1/recruiter/profile/${currentUser._id}`,
           { withCredentials: true }
         );
         setProfileData(profileRes.data.data);
 
         const jobsRes = await axios.get(
-          "http://localhost:8000/api/v1/job/recruiter-jobs",
+          `${apiUrl}/api/v1/job/recruiter-jobs`,
           { withCredentials: true }
         );
         console.log("Jobs Response:", jobsRes.data);
@@ -69,7 +69,7 @@ const RecruiterProfile = () => {
 
         try {
           const internshipsRes = await axios.get(
-            "http://localhost:8000/api/v1/internship/recruiter",
+            `${apiUrl}/api/v1/internship/recruiter`,
             { withCredentials: true }
           );
           console.log("Internships Response:", internshipsRes.data);
@@ -95,7 +95,7 @@ const RecruiterProfile = () => {
   const fetchJobsagain = async () => {
     try {
       const jobsRes = await axios.get(
-        "http://localhost:8000/api/v1/job/recruiter-jobs",
+        `${apiUrl}/api/v1/job/recruiter-jobs`,
         { withCredentials: true }
       );
       setPostedJobs(jobsRes.data.data || []);
@@ -107,7 +107,7 @@ const RecruiterProfile = () => {
   const fetchInternshipsagain = async () => {
     try {
       const internshipsRes = await axios.get(
-        "http://localhost:8000/api/v1/internship/recruiter",
+        `${apiUrl}/api/v1/internship/recruiter`,
         { withCredentials: true }
       );
       console.log("Internships Response:", internshipsRes.data);
@@ -123,7 +123,7 @@ const RecruiterProfile = () => {
     const fetchJobs = async () => {
       try {
         const jobsRes = await axios.get(
-          "http://localhost:8000/api/v1/job/recruiter-jobs",
+          `${apiUrl}/api/v1/job/recruiter-jobs`,
           { withCredentials: true }
         );
         setPostedJobs(jobsRes.data.data || []);
@@ -141,7 +141,7 @@ const RecruiterProfile = () => {
     const fetchInternships = async () => {
       try {
         const internshipsRes = await axios.get(
-          "http://localhost:8000/api/v1/internship/recruiter",
+          `${apiUrl}/api/v1/internship/recruiter`,
           { withCredentials: true }
         );
         console.log("Internships Response:", internshipsRes.data);
@@ -162,7 +162,7 @@ const RecruiterProfile = () => {
     setCurrentJobId(jobId);
     try {
       const response = await axios.post(
-        `http://localhost:8000/api/v1/job/save-job/${jobId}`,
+        `${apiUrl}/api/v1/job/save-job/${jobId}`,
         {},
         { withCredentials: true }
       );
@@ -181,7 +181,7 @@ const RecruiterProfile = () => {
 
     try {
       const response = await axios.delete(
-        `http://localhost:8000/api/v1/job/delete/${jobId}`,{withCredentials: true}
+        `${apiUrl}/api/v1/job/delete/${jobId}`,{withCredentials: true}
       );
       toast.success(response.data.message || "Job deleted successfully");
       fetchJobsagain();
@@ -192,7 +192,7 @@ const RecruiterProfile = () => {
   const confirmDeleteInternship = async (e,internshipId) => {
     try {
       const response = await axios.delete(
-        `http://localhost:8000/api/v1/internship/delete/${internshipId}`,
+        `${apiUrl}/api/v1/internship/delete/${internshipId}`,
         { withCredentials: true }
       );
       toast.success(response.data.message || "Internship deleted successfully");

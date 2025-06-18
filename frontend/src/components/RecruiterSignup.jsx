@@ -25,7 +25,7 @@ const RecruiterSignup = () => {
   const { loading } = useSelector((store) => store.auth);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
   };
@@ -36,7 +36,7 @@ const RecruiterSignup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    const apiUrl = import.meta.env.VITE_BACKEND_URL;
     const formData = new FormData();
     formData.append("companyname", input.companyname);
     formData.append("email", input.email);
@@ -52,7 +52,7 @@ const RecruiterSignup = () => {
     try {
       dispatch(setLoading(true));
       const res = await axios.post(
-        `${RECRUITER_API_END_POINT}/signup`,
+        `${apiUrl}/api/v1/recruiter/signup`,
         formData,
         {
           headers: {

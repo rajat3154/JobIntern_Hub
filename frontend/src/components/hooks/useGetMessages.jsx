@@ -7,14 +7,14 @@ import { toast } from "sonner";
 
 const useGetMessages = (selectedUserId) => {
   const dispatch = useDispatch();
-
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     const fetchMessages = async () => {
       if (!selectedUserId) return;
 
       try {
         const res = await axios.get(
-          `http://localhost:8000/api/v1/message/${selectedUserId}`,
+          `${apiUrl}/api/v1/message/${selectedUserId}`,
           {
             withCredentials: true,
             headers: {

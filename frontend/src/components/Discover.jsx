@@ -28,16 +28,16 @@ const Discover = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { user: authUser } = useSelector((store) => store.auth);
   const navigate = useNavigate();
-
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
         const [studentsRes, recruitersRes] = await Promise.all([
-          axios.get("http://localhost:8000/api/v1/students", {
+          axios.get(`${apiUrl}/api/v1/students`, {
             withCredentials: true,
           }),
-          axios.get("http://localhost:8000/api/v1/recruiter/recruiters", {
+          axios.get(`${apiUrl}/api/v1/recruiter/recruiters`, {
             withCredentials: true,
           }),
         ]);

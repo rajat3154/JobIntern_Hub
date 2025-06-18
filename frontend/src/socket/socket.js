@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
-
-const SOCKET_URL = "http://localhost:8000";
+const apiUrl = import.meta.env.VITE_BACKEND_URL;
+const SOCKET_URL = `${apiUrl}`;
 
 let socket;
 

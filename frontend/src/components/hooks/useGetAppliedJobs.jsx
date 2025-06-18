@@ -7,13 +7,13 @@ const useGetAppliedJobs = () => {
   const { user } = useSelector((state) => state.auth);
   const [appliedJobs, setAppliedJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     if (!user?._id) return;
 
     const fetchJobs = async () => {
       try {
-        const { data } = await axios.get(`${APPLICATION_API_END_POINT}/get`,{
+        const { data } = await axios.get(`${apiUrl}api/v1/application/get`,{
           withCredentials:true
         });
         setAppliedJobs(data?.appliedJobs || []);

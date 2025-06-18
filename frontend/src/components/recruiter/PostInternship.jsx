@@ -28,7 +28,7 @@ const PostInternship = ({ onClose, onSuccess }) => {
   });
 
   const [loading, setLoading] = useState(false);
-
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -39,7 +39,7 @@ const PostInternship = ({ onClose, onSuccess }) => {
 
     try {
       const res = await axios.post(
-        `${INTERNSHIP_API_END_POINT}/post`,
+        `${apiUrl}/api/v1/internship/post`,
         formData,
         {
           headers: { "Content-Type": "application/json" },

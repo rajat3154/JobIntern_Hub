@@ -18,14 +18,14 @@ const Jobs = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [currentJobId, setCurrentJobId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     // Check if job is saved when component mounts or job changes
     const checkIfJobSaved = async () => {
       if (!user || !currentJobId) return;
       try {
         const response = await fetch(
-          `http://localhost:8000/api/v1/job/is-saved/${currentJobId}`,
+          `${apiUrl}/api/v1/job/is-saved/${currentJobId}`,
           {
             method: "GET",
             headers: {
@@ -58,7 +58,7 @@ const Jobs = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/api/v1/job/save-job/${jobId}`,
+        `${apiUrl}/api/v1/job/save-job/${jobId}`,
         {
           method: "POST",
           headers: {
@@ -86,7 +86,7 @@ const Jobs = () => {
   const fetchJobs = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8000/api/v1/job/recruiter/get",
+        `${apiUrl}/api/v1/job/recruiter/get`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -115,7 +115,7 @@ const Jobs = () => {
 
   const fetchAllJobs = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/v1/job/get", {
+      const response = await fetch(`${apiUrl}/api/v1/job/get`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

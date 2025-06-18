@@ -14,7 +14,7 @@ const FollowList = ({ userId, userType }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-
+    const apiUrl = import.meta.env.VITE_BACKEND_URL;
     const fetchData = async (type) => {
         if (!userId || !userType) return;
 
@@ -23,7 +23,7 @@ const FollowList = ({ userId, userType }) => {
         try {
             const capitalizedUserType = userType.charAt(0).toUpperCase() + userType.slice(1);
             const response = await axios.get(
-                `http://localhost:8000/api/v1/follow/${type}/${userId}/${capitalizedUserType}`,
+                `${apiUrl}/api/v1/follow/${type}/${userId}/${capitalizedUserType}`,
                 {
                     headers: { "Content-Type": "application/json" },
                     withCredentials: true

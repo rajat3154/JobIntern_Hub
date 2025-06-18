@@ -15,7 +15,7 @@ const UsersToFollow = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -26,11 +26,11 @@ const UsersToFollow = () => {
         console.log("👤 Current user:", user);
 
         const [studentsRes, recruitersRes] = await Promise.all([
-          axios.get("http://localhost:8000/api/v1/students", {
+          axios.get(`${apiUrl}/api/v1/students`, {
             headers: { "Content-Type": "application/json" },
             withCredentials: true,
           }),
-          axios.get("http://localhost:8000/api/v1/recruiter/recruiters", {
+          axios.get(`${apiUrl}/api/v1/recruiter/recruiters`, {
             headers: { "Content-Type": "application/json" },
             withCredentials: true,
           }),
@@ -46,7 +46,7 @@ const UsersToFollow = () => {
         console.log("💼 Recruiters fetched:", recruiters.length);
 
         const followingRes = await axios.get(
-          `http://localhost:8000/api/v1/follow/following/${user._id}/${user.role}`,
+          `${apiUrl}/api/v1/follow/following/${user._id}/${user.role}`,
           {
             headers: { "Content-Type": "application/json" },
             withCredentials: true,

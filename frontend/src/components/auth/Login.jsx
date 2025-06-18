@@ -33,7 +33,8 @@ const Login = () => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-
+    const apiUrl = import.meta.env.VITE_BACKEND_URL;
+    console.log(apiUrl);
     if (!input.role) {
       toast.error("Please select a role");
       return;
@@ -42,7 +43,7 @@ const Login = () => {
     try {
       dispatch(setLoading(true));
 
-      const res = await axios.post(`${USER_API_END_POINT}/login`, input, {
+      const res = await axios.post(`${apiUrl}/api/v1/login`, input, {
         headers: {
           "Content-Type": "application/json",
         },

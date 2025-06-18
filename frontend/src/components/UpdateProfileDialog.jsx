@@ -38,6 +38,7 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const apiUrl = import.meta.env.VITE_BACKEND_URL;
     const formData = new FormData();
     formData.append("fullname", input.fullname);
     formData.append("email", input.email);
@@ -50,7 +51,7 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
     try {
       setLoading(true);
       const res = await axios.post(
-        `${STUDENT_API_END_POINT}/profile/update`,
+        `${apiUrl}/api/v1/student/profile/update`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

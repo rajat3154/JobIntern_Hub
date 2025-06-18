@@ -13,11 +13,11 @@ const JobDetails = () => {
   const { id: jobId } = useParams();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   const fetchJobWithApplicants = async () => {
     try {
       const res = await axios.get(
-        `${APPLICATION_API_END_POINT}/${jobId}/applicants`,
+        `${apiUrl}/api/v1/application/${jobId}/applicants`,
         { withCredentials: true }
       );
 
@@ -38,7 +38,7 @@ const JobDetails = () => {
       setLoading(true);
       console.log(status, appId);
       const res = await axios.post(
-        `${APPLICATION_API_END_POINT}/status/${appId}/update`,
+        `${apiUrl}/api/v1/application/status/${appId}/update`,
         { status },
         { withCredentials: true }
       );

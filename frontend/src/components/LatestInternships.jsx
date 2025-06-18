@@ -10,11 +10,11 @@ const LatestInternships = () => {
   const navigate = useNavigate();
   const { user } = useSelector((store) => store.auth);
   const { searchQuery } = useSearch();
-
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   const fetchLatestInternships = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8000/api/v1/internship/latest",
+        `${apiUrl}/api/v1/internship/latest`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },

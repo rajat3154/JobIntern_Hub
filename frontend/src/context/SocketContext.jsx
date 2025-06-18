@@ -18,11 +18,11 @@ export const useSocket = () => {
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const { user } = useSelector((state) => state.auth);
-
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     if (!user?._id) return;
 
-    const newSocket = io("http://localhost:8000", {
+    const newSocket = io(`${apiUrl}`, {
       autoConnect: true,
       withCredentials: true,
       transports: ["polling", "websocket"],

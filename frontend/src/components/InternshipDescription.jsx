@@ -10,11 +10,11 @@ const InternshipDescription = () => {
   const [applying, setApplying] = useState(false);
   const [hasApplied, setHasApplied] = useState(false);
   const [applicationStatus, setApplicationStatus] = useState(null);
-
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   const fetchInternshipDetails = async () => {
     try {
       const { data } = await axios.get(
-        `http://localhost:8000/api/v1/internship/get/${id}`,
+        `${apiUrl}/api/v1/internship/get/${id}`,
         { withCredentials: true }
       );
       setInternship(data.internship);
@@ -44,7 +44,7 @@ const InternshipDescription = () => {
     try {
       setApplying(true);
       const res = await axios.post(
-        `http://localhost:8000/api/v1/application/apply/intern/${id}`,
+        `${apiUrl}/api/v1/application/apply/intern/${id}`,
         {},
         { withCredentials: true }
       );

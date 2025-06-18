@@ -38,7 +38,7 @@ const StudentSignup = () => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-
+    const apiUrl = import.meta.env.VITE_BACKEND_URL;
     const formData = new FormData();
     formData.append("fullname", input.fullname);
     formData.append("email", input.email);
@@ -56,7 +56,7 @@ const StudentSignup = () => {
       dispatch(setLoading(true));
 
       const res = await axios.post(
-        `${STUDENT_API_END_POINT}/signup`,
+        `${apiUrl}/api/v1/student/signup`,
         formData,
         {
           headers: {

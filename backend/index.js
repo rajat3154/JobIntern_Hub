@@ -22,9 +22,10 @@ const server = createServer(app);
 
 // Initialize Socket.IO immediately after creating the server
 const io = initSocket(server);
-
 const corsOptions = {
-    origin: ["http://localhost:5173"],
+    origin: (origin, callback) => {
+        callback(null, true); // Allow all origins dynamically
+    },
     credentials: true,
 };
 

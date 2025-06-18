@@ -10,7 +10,7 @@ const FollowButton = ({ userId, userType, onFollowSuccess, className, size = "sm
     const [isFollowing, setIsFollowing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const { user } = useAuth();
-
+    const apiUrl = import.meta.env.VITE_BACKEND_URL;
     useEffect(() => {
         const checkFollowStatus = async () => {
             if (!user || !userId) return;
@@ -18,7 +18,7 @@ const FollowButton = ({ userId, userType, onFollowSuccess, className, size = "sm
             try {
                 const userRole = user.role.charAt(0).toUpperCase() + user.role.slice(1);
                 const response = await axios.get(
-                    `http://localhost:8000/api/v1/follow/following/${user._id}/${userRole}`,
+                    `${apiUrl}/api/v1/follow/following/${user._id}/${userRole}`,
                     { headers: { "Content-Type": "application/json" }, withCredentials: true }
                 );
                 setIsFollowing(response.data.data?.some(follow => follow._id === userId));
@@ -47,7 +47,7 @@ const FollowButton = ({ userId, userType, onFollowSuccess, className, size = "sm
             const endpoint = isFollowing ? '/unfollow' : '/follow';
             const followerType = user.role.charAt(0).toUpperCase() + user.role.slice(1);
             const followingType = userType.charAt(0).toUpperCase() + userType.slice(1);            const response = await axios.post(
-                `http://localhost:8000/api/v1/follow${endpoint}`,
+                `${apiUrl}/api/v1/follow${endpoint}`,
                 {
                     followingId: userId,
                     followerType,

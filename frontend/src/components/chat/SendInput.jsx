@@ -13,9 +13,10 @@ const SendInput = () => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+    const apiUrl = import.meta.env.VITE_BACKEND_URL;
     try {
       const res = await axios.post(
-        `${BASE_URL}/api/v1/message/send/${selectedUser?._id}`,
+        `${apiUrl}/api/v1/message/send/${selectedUser?._id}`,
         { message },
         {
           headers: {

@@ -11,19 +11,19 @@ import {
 const useGetOtherUsers = () => {
   const dispatch = useDispatch();
   const { authUser } = useSelector((state) => state.auth); // ✅ Get logged-in user
-
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     const fetchAllUsers = async () => {
       try {
         const [studentsRes, recruitersRes] = await Promise.all([
-          fetch(`${STUDENT_API_END_POINT}/students`, {
+          fetch(`${apiUrl}/api/v1/student/students`, {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
             },
             credentials: "include",
           }),
-          fetch(`${RECRUITER_API_END_POINT}/recruiters`, {
+          fetch(`${apiUrl}/api/v1/recruiter/recruiters`, {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
